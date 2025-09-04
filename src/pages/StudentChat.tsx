@@ -1,0 +1,274 @@
+import { useState, useRef, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { NavigationBar } from '@/components/ui/navigation-bar';
+import { SuggestionCard } from '@/components/chat/SuggestionCard';
+import { ChatMessage } from '@/components/chat/ChatMessage';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Send, 
+  MapPin, 
+  Users, 
+  Calendar, 
+  Phone, 
+  BookOpen,
+  Building,
+  Clock,
+  Mail
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface Message {
+  id: string;
+  text: string;
+  isUser: boolean;
+  timestamp: string;
+}
+
+const SUGGESTION_CARDS = [
+  {
+    id: 'location',
+    title: 'Where is the computer lab?',
+    icon: MapPin,
+    query: 'Where is the computer lab located?'
+  },
+  {
+    id: 'hod',
+    title: 'Who is the HOD of EnTC Department?',
+    icon: Users,
+    query: 'Who is the Head of Department for Electronics and Telecommunication?'
+  },
+  {
+    id: 'events',
+    title: 'What are today\'s events?',
+    icon: Calendar,
+    query: 'What events are happening today on campus?'
+  },
+  {
+    id: 'library',
+    title: 'How can I contact the library?',
+    icon: Phone,
+    query: 'What are the library contact details and timings?'
+  },
+  {
+    id: 'departments',
+    title: 'List all departments',
+    icon: Building,
+    query: 'What departments are available in the college?'
+  },
+  {
+    id: 'timings',
+    title: 'College timings',
+    icon: Clock,
+    query: 'What are the college working hours and timings?'
+  }
+];
+
+export default function StudentChat() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const generateBotResponse = (userMessage: string): string => {
+    const message = userMessage.toLowerCase();
+
+    // Check if it's college-related
+    const collegeKeywords = ['lab', 'department', 'hod', 'library', 'event', 'college', 'timing', 'contact', 'faculty', 'staff'];
+    const isCollegeRelated = collegeKeywords.some(keyword => message.includes(keyword));
+
+    if (!isCollegeRelated) {
+      return "I can only provide details about college information. Please select from the options below or ask about:\n\n• Department locations and staff\n• College events and timings\n• Library and lab information\n• Faculty contact details";
+    }
+
+    // Simulated responses based on keywords
+    if (message.includes('computer lab') || message.includes('lab')) {
+      return "**Computer Lab Location:**\n\n1. **Location:** 2nd floor of the main building, Room No. 123\n2. **Timings:** Available 24/7 for students\n3. **In-charge:** Prof. Mehta\n4. **Contact:** comp.lab@college.edu\n\nFor any technical issues, please contact the lab assistant during college hours.";
+    }
+
+    if (message.includes('hod') || message.includes('head of department')) {
+      return "**Department Heads:**\n\n1. **Computer Engineering:** Dr. Sharma\n2. **Electronics & Telecommunication:** Dr. Patel\n3. **Mechanical Engineering:** Dr. Kumar\n4. **Civil Engineering:** Dr. Singh\n\nFor specific departmental queries, please contact the respective HOD's office.";
+    }
+
+    if (message.includes('event') || message.includes('today')) {
+      return "**Today's Events:**\n\n1. **Tech Fest 2024:** 10:00 AM - 4:00 PM in Main Auditorium\n2. **Guest Lecture:** 2:00 PM - 3:30 PM in Seminar Hall\n3. **Sports Practice:** 4:00 PM - 6:00 PM at Sports Ground\n\nFor more details, check the notice board or contact the student council.";
+    }
+
+    if (message.includes('library')) {
+      return "**Library Information:**\n\n1. **Location:** Ground floor, Central Building\n2. **Timings:** 8:00 AM - 8:00 PM (Mon-Sat)\n3. **Contact:** library@college.edu\n4. **Phone:** +91-12345-67890\n5. **Librarian:** Ms. Gupta\n\nLibrary cards are mandatory for book borrowing.";
+    }
+
+    if (message.includes('department') || message.includes('departments')) {
+      return "**Available Departments:**\n\n1. **Computer Engineering**\n2. **Electronics & Telecommunication**\n3. **Mechanical Engineering**\n4. **Civil Engineering**\n5. **Information Technology**\n6. **Electrical Engineering**\n\nEach department has dedicated faculty and modern laboratories.";
+    }
+
+    if (message.includes('timing') || message.includes('hours')) {
+      return "**College Timings:**\n\n1. **Regular Classes:** 9:00 AM - 4:00 PM\n2. **Library:** 8:00 AM - 8:00 PM\n3. **Office Hours:** 10:00 AM - 5:00 PM\n4. **Canteen:** 8:30 AM - 5:30 PM\n\n**Note:** Saturday classes are from 9:00 AM - 1:00 PM";
+    }
+
+    // Default response for college-related queries without specific data
+    return "This information is not available in the system currently. Please contact the concerned faculty member or visit the administrative office for details.\n\n**Administrative Office:**\n• Timing: 10:00 AM - 5:00 PM\n• Location: Ground floor, Admin Block\n• Phone: +91-12345-67891";
+  };
+
+  const handleSendMessage = async (messageText?: string) => {
+    const text = messageText || inputValue.trim();
+    if (!text) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text,
+      isUser: true,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsTyping(true);
+
+    // Simulate AI response delay
+    setTimeout(() => {
+      const botResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: generateBotResponse(text),
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setMessages(prev => [...prev, botResponse]);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  const handleSuggestionClick = (suggestion: typeof SUGGESTION_CARDS[0]) => {
+    handleSendMessage(suggestion.query);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  if (!user || !profile) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    </div>;
+  }
+
+  const firstName = profile.full_name.split(' ')[0];
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <NavigationBar 
+        title="Campus Chat Bot" 
+        showBack 
+        onBack={() => navigate('/')}
+      />
+      
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+        {/* Chat Header */}
+        <div className="p-6 text-center bg-gradient-subtle">
+          <h1 className="text-2xl font-bold text-foreground font-poppins">
+            Hi there, <span className="text-primary">{firstName}</span>.
+          </h1>
+          <p className="text-lg text-muted-foreground mt-1 font-poppins">
+            What would you like to know?
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Use one of the most common prompts below or ask your own to begin.
+          </p>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.length === 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+              {SUGGESTION_CARDS.map((suggestion) => (
+                <SuggestionCard
+                  key={suggestion.id}
+                  title={suggestion.title}
+                  icon={suggestion.icon}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                />
+              ))}
+            </div>
+          )}
+
+          {messages.map((message) => (
+            <ChatMessage
+              key={message.id}
+              message={message.text}
+              isUser={message.isUser}
+              timestamp={message.timestamp}
+            />
+          ))}
+
+          {isTyping && (
+            <div className="flex gap-3">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <div className="typing-indicator">...</div>
+              </div>
+              <Card className="bg-card text-card-foreground border-border p-3 shadow-chat">
+                <p className="text-sm text-muted-foreground font-poppins">
+                  Campus Bot is typing...
+                </p>
+              </Card>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Chat Input */}
+        <div className="p-4 border-t border-border bg-card">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex gap-2">
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask whatever you want..."
+                className="flex-1 transition-smooth focus:ring-primary"
+                disabled={isTyping}
+              />
+              <Button
+                onClick={() => handleSendMessage()}
+                disabled={!inputValue.trim() || isTyping}
+                className="gradient-campus hover:opacity-90 transition-smooth"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              I can only provide details about college information. Please ask about departments, events, facilities, or contact details.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
