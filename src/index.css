@@ -60,6 +60,7 @@
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-page: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
     --radius: 12px;
 
@@ -158,6 +159,19 @@
     transition: var(--transition-bounce);
   }
 
+  .transition-page {
+    transition: var(--transition-page);
+  }
+
+  /* Page transitions */
+  .page-enter {
+    animation: fadeInSlideUp 0.4s ease-out;
+  }
+
+  .page-exit {
+    animation: fadeOutSlideDown 0.3s ease-in;
+  }
+
   /* Chat Animations */
   .chat-message-enter {
     animation: slideInUp 0.3s ease-out;
@@ -176,6 +190,28 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeOutSlideDown {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-20px);
     }
   }
 

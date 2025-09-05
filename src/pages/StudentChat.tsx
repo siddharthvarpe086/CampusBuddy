@@ -7,6 +7,7 @@ import { SuggestionCard } from '@/components/chat/SuggestionCard';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Send, 
   MapPin, 
@@ -90,49 +91,54 @@ export default function StudentChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const generateBotResponse = (userMessage: string): string => {
+  const generateBotResponse = async (userMessage: string): Promise<string> => {
     const message = userMessage.toLowerCase();
 
     // Check if it's college-related
-    const collegeKeywords = ['lab', 'department', 'hod', 'library', 'event', 'college', 'timing', 'contact', 'faculty', 'staff'];
+    const collegeKeywords = ['lab', 'department', 'hod', 'library', 'event', 'college', 'timing', 'contact', 'faculty', 'staff', 'where', 'who', 'what', 'when', 'how'];
     const isCollegeRelated = collegeKeywords.some(keyword => message.includes(keyword));
 
     if (!isCollegeRelated) {
-      return "I can only provide details about college information. Please select from the options below or ask about:\n\n• Department locations and staff\n• College events and timings\n• Library and lab information\n• Faculty contact details";
+      return "I can only provide details about college information. Please ask about:\n\n• Department locations and staff\n• College events and timings\n• Library and lab information\n• Faculty contact details";
     }
 
-    // Specific response for computer lab location
-    if (message.includes('computer lab') && (message.includes('location') || message.includes('where'))) {
-      return "Computer Lab Location:\n\n1. Location: 2nd floor of the main building, Room No. 123\n2. Timings: Available 24/7 for students\n3. In-charge: Prof. Mehta\n4. Contact: comp.lab@college.edu\n\nFor any technical issues, please contact the lab assistant during college hours.";
-    }
+    try {
+      // Fetch all college data from faculty-added information
+      const { data: collegeData, error } = await supabase
+        .from('college_data')
+        .select('*');
 
-    // Generic responses for other queries
-    if (message.includes('lab')) {
-      return "I can help you with information about various labs in our college. Please specify which lab you're looking for:\n\n• Computer Lab\n• Physics Lab\n• Chemistry Lab\n• Electronics Lab\n\nThis information is managed by faculty members through our system.";
-    }
+      if (error) {
+        console.error('Error fetching college data:', error);
+        return "We will update soon.";
+      }
 
-    if (message.includes('hod') || message.includes('head of department')) {
-      return "Department Information:\n\nI can provide details about department heads and faculty members. Please specify which department you're interested in:\n\n• Computer Engineering\n• Electronics & Telecommunication\n• Mechanical Engineering\n• Civil Engineering\n\nThis information is maintained by our faculty team.";
-    }
+      // If no data available
+      if (!collegeData || collegeData.length === 0) {
+        return "We will update soon.";
+      }
 
-    if (message.includes('event') || message.includes('today')) {
-      return "College Events Information:\n\nI can help you find information about college events and activities. The event details are regularly updated by our faculty members.\n\nFor the most current information, please ask about specific events or check with the administration office.";
-    }
+      // Search through college data for relevant information
+      const relevantData = collegeData.filter(item => {
+        const searchText = `${item.title} ${item.content} ${item.category} ${item.tags?.join(' ') || ''}`.toLowerCase();
+        return message.split(' ').some(word => searchText.includes(word.toLowerCase()));
+      });
 
-    if (message.includes('library')) {
-      return "Library Information:\n\nI can provide details about our college library including:\n\n• Location and timings\n• Contact information\n• Services available\n• Library staff details\n\nThis information is maintained by our faculty team. Please ask for specific library details you need.";
-    }
+      if (relevantData.length === 0) {
+        return "We will update soon.";
+      }
 
-    if (message.includes('department') || message.includes('departments')) {
-      return "Available Departments:\n\nI can provide information about our college departments:\n\n• Computer Engineering\n• Electronics & Telecommunication\n• Mechanical Engineering\n• Civil Engineering\n• Information Technology\n• Electrical Engineering\n\nEach department has dedicated faculty and modern laboratories. Please ask about a specific department for more details.";
-    }
+      // Format and return the most relevant information
+      const response = relevantData.map(item => {
+        return `${item.title}:\n\n${item.content}`;
+      }).join('\n\n---\n\n');
 
-    if (message.includes('timing') || message.includes('hours')) {
-      return "College Timings:\n\nHere are the general college timings:\n\n• Regular Classes: 9:00 AM - 4:00 PM\n• Library: 8:00 AM - 8:00 PM\n• Office Hours: 10:00 AM - 5:00 PM\n• Canteen: 8:30 AM - 5:30 PM\n\nNote: Saturday classes are from 9:00 AM - 1:00 PM\n\nFor specific department timings, please ask about that department.";
-    }
+      return response;
 
-    // Default response for college-related queries without specific data
-    return "This information is not available in the system currently. Please contact the concerned faculty member or visit the administrative office for details.\n\nAdministrative Office:\n• Timing: 10:00 AM - 5:00 PM\n• Location: Ground floor, Admin Block\n• Phone: +91-12345-67891";
+    } catch (error) {
+      console.error('Error processing request:', error);
+      return "We will update soon.";
+    }
   };
 
   const handleSendMessage = async (messageText?: string) => {
@@ -150,18 +156,34 @@ export default function StudentChat() {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
+    // Generate AI response with faculty data
+    try {
+      const botResponseText = await generateBotResponse(text);
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: generateBotResponse(text),
+        text: botResponseText,
         isUser: false,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
-      setMessages(prev => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 1500);
+      setTimeout(() => {
+        setMessages(prev => [...prev, botResponse]);
+        setIsTyping(false);
+      }, 1500);
+    } catch (error) {
+      console.error('Error generating response:', error);
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "We will update soon.",
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      
+      setTimeout(() => {
+        setMessages(prev => [...prev, errorResponse]);
+        setIsTyping(false);
+      }, 1500);
+    }
   };
 
   const handleSuggestionClick = (suggestion: typeof SUGGESTION_CARDS[0]) => {
@@ -187,7 +209,7 @@ export default function StudentChat() {
   const firstName = profile.full_name.split(' ')[0];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col page-enter">
       <NavigationBar 
         title="Campus Chat Bot" 
         showBack 

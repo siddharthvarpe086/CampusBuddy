@@ -11,8 +11,8 @@ import { Loader2, Shield, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const FACULTY_CREDENTIALS = {
-  email: 'TeamFaculty',
-  password: '123456'
+  email: 'faculty@college.in',
+  password: '12345678'
 };
 
 export default function FacultyAuth() {
@@ -73,7 +73,7 @@ export default function FacultyAuth() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background page-enter">
       <NavigationBar title="Faculty Authentication" showBack />
       
       <div className="container max-w-md mx-auto pt-8 px-4">

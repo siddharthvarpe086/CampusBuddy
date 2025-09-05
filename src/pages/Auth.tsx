@@ -11,11 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, GraduationCap, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const FACULTY_CREDENTIALS = {
-  email: 'TeamFaculty',
-  password: '123456'
-};
-
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -85,16 +80,9 @@ export default function Auth() {
     setIsLoading(false);
   };
 
-  const handleFacultyLogin = () => {
-    setFormData(prev => ({
-      ...prev,
-      email: FACULTY_CREDENTIALS.email,
-      password: FACULTY_CREDENTIALS.password
-    }));
-  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background page-enter">
       <NavigationBar title="Campus Authentication" showBack />
       
       <div className="container max-w-md mx-auto pt-8 px-4">
@@ -186,11 +174,11 @@ export default function Auth() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full mt-4 transition-smooth"
+                    className="w-full mt-4 transition-smooth hover:bg-accent/50 hover:scale-[1.02]"
                     onClick={() => navigate('/faculty-auth')}
                   >
                     <UserCheck className="mr-2 h-4 w-4" />
-                    Faculty Portal
+                    Faculty Login
                   </Button>
                 </div>
               </TabsContent>
