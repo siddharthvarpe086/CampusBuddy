@@ -18,7 +18,7 @@ const FACULTY_CREDENTIALS = {
 export default function FacultyAuth() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { signIn, user } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -50,27 +50,50 @@ export default function FacultyAuth() {
     setIsLoading(true);
     console.log('Faculty login attempt with credentials:', formData.email, formData.password);
     
-    const { error } = await signIn(formData.email, formData.password);
+    // First try to sign in
+    let { error } = await signIn(formData.email, formData.password);
     
-    if (error) {
+    // If sign in fails, try to create the faculty account
+    if (error && error.message === 'Invalid login credentials') {
+      console.log('Faculty account not found, creating...');
+      const signUpResult = await signUp(formData.email, formData.password, 'Faculty Admin', 'faculty');
+      
+      if (signUpResult.error) {
+        console.error('Faculty signup error:', signUpResult.error);
+        // If signup fails because user already exists, try signing in again
+        if (signUpResult.error.message.includes('User already registered')) {
+          const retrySignIn = await signIn(formData.email, formData.password);
+          if (retrySignIn.error) {
+            setError('Faculty authentication failed: ' + retrySignIn.error.message);
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          setError('Faculty account creation failed: ' + signUpResult.error.message);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      toast({
+        title: "Faculty Account Created",
+        description: "Faculty account has been set up successfully.",
+      });
+    } else if (error) {
       console.error('Faculty login error:', error);
       setError('Faculty authentication failed: ' + error.message);
-    } else {
-      toast({
-        title: "Faculty Access Granted",
-        description: "Welcome to the faculty dashboard.",
-      });
-      navigate('/faculty-dashboard');
+      setIsLoading(false);
+      return;
     }
+
+    toast({
+      title: "Faculty Access Granted",
+      description: "Welcome to the faculty dashboard.",
+    });
+    navigate('/faculty-dashboard');
     setIsLoading(false);
   };
 
-  const handleUseFacultyCredentials = () => {
-    setFormData({
-      email: FACULTY_CREDENTIALS.email,
-      password: FACULTY_CREDENTIALS.password
-    });
-  };
 
   return (
     <div className="min-h-screen bg-background page-enter">
@@ -151,25 +174,6 @@ export default function FacultyAuth() {
               </Button>
             </form>
 
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Quick Access</span>
-                </div>
-              </div>
-              
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full mt-4 transition-smooth"
-                onClick={handleUseFacultyCredentials}
-              >
-                Use Faculty Credentials
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>
