@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { NavigationBar } from '@/components/ui/navigation-bar';
 import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, GraduationCap, UserCheck } from 'lucide-react';
+import { Loader2, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Auth() {
@@ -161,26 +161,6 @@ export default function Auth() {
                   </Button>
                 </form>
 
-                <div className="mt-4">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">Faculty Access</span>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full mt-4 transition-smooth hover:bg-accent/50 hover:scale-[1.02]"
-                    onClick={() => navigate('/faculty-auth')}
-                  >
-                    <UserCheck className="mr-2 h-4 w-4" />
-                    Faculty Login
-                  </Button>
-                </div>
               </TabsContent>
               
               <TabsContent value="signup">
