@@ -41,7 +41,7 @@ export default function FacultyAuth() {
   const handleFacultySignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate faculty credentials
+    // Validate faculty credentials match expected values
     if (formData.email !== FACULTY_CREDENTIALS.email || formData.password !== FACULTY_CREDENTIALS.password) {
       setError('Invalid faculty credentials. Please check your login details.');
       return;
@@ -50,42 +50,42 @@ export default function FacultyAuth() {
     setIsLoading(true);
     console.log('Faculty login attempt with credentials:', formData.email, formData.password);
     
-    // First try to sign in
-    let { error } = await signIn(formData.email, formData.password);
+    // Try to sign in first
+    const { error: signInError } = await signIn(formData.email, formData.password);
     
-    // If sign in fails, try to create the faculty account
-    if (error && error.message === 'Invalid login credentials') {
+    if (signInError && signInError.message === 'Invalid login credentials') {
+      // If credentials don't exist, create the faculty account
       console.log('Faculty account not found, creating...');
-      const signUpResult = await signUp(formData.email, formData.password, 'Faculty Admin', 'faculty');
+      const { error: signUpError } = await signUp(
+        FACULTY_CREDENTIALS.email, 
+        FACULTY_CREDENTIALS.password, 
+        'Faculty Admin',
+        'faculty'
+      );
       
-      if (signUpResult.error) {
-        console.error('Faculty signup error:', signUpResult.error);
-        // If signup fails because user already exists, try signing in again
-        if (signUpResult.error.message.includes('User already registered')) {
-          const retrySignIn = await signIn(formData.email, formData.password);
-          if (retrySignIn.error) {
-            setError('Faculty authentication failed: ' + retrySignIn.error.message);
-            setIsLoading(false);
-            return;
-          }
-        } else {
-          setError('Faculty account creation failed: ' + signUpResult.error.message);
-          setIsLoading(false);
-          return;
-        }
+      if (signUpError) {
+        console.error('Faculty signup error:', signUpError);
+        setError('Failed to create faculty account: ' + signUpError.message);
+        setIsLoading(false);
+        return;
       }
+
+      // After successful signup, try to sign in again
+      const { error: secondSignInError } = await signIn(formData.email, formData.password);
       
-      toast({
-        title: "Faculty Account Created",
-        description: "Faculty account has been set up successfully.",
-      });
-    } else if (error) {
-      console.error('Faculty login error:', error);
-      setError('Faculty authentication failed: ' + error.message);
+      if (secondSignInError) {
+        console.error('Faculty login after signup error:', secondSignInError);
+        setError('Faculty account created but login failed: ' + secondSignInError.message);
+        setIsLoading(false);
+        return;
+      }
+    } else if (signInError) {
+      console.error('Faculty login error:', signInError);
+      setError('Faculty authentication failed: ' + signInError.message);
       setIsLoading(false);
       return;
     }
-
+    
     toast({
       title: "Faculty Access Granted",
       description: "Welcome to the faculty dashboard.",
@@ -93,7 +93,6 @@ export default function FacultyAuth() {
     navigate('/faculty-dashboard');
     setIsLoading(false);
   };
-
 
   return (
     <div className="min-h-screen bg-background page-enter">
@@ -173,7 +172,6 @@ export default function FacultyAuth() {
                 )}
               </Button>
             </form>
-
           </CardContent>
         </Card>
       </div>
