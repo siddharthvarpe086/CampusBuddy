@@ -101,33 +101,38 @@ export default function StudentChat() {
       return "I can only provide details about college information. Please select from the options below or ask about:\n\n• Department locations and staff\n• College events and timings\n• Library and lab information\n• Faculty contact details";
     }
 
-    // Simulated responses based on keywords
-    if (message.includes('computer lab') || message.includes('lab')) {
-      return "**Computer Lab Location:**\n\n1. **Location:** 2nd floor of the main building, Room No. 123\n2. **Timings:** Available 24/7 for students\n3. **In-charge:** Prof. Mehta\n4. **Contact:** comp.lab@college.edu\n\nFor any technical issues, please contact the lab assistant during college hours.";
+    // Specific response for computer lab location
+    if (message.includes('computer lab') && (message.includes('location') || message.includes('where'))) {
+      return "Computer Lab Location:\n\n1. Location: 2nd floor of the main building, Room No. 123\n2. Timings: Available 24/7 for students\n3. In-charge: Prof. Mehta\n4. Contact: comp.lab@college.edu\n\nFor any technical issues, please contact the lab assistant during college hours.";
+    }
+
+    // Generic responses for other queries
+    if (message.includes('lab')) {
+      return "I can help you with information about various labs in our college. Please specify which lab you're looking for:\n\n• Computer Lab\n• Physics Lab\n• Chemistry Lab\n• Electronics Lab\n\nThis information is managed by faculty members through our system.";
     }
 
     if (message.includes('hod') || message.includes('head of department')) {
-      return "**Department Heads:**\n\n1. **Computer Engineering:** Dr. Sharma\n2. **Electronics & Telecommunication:** Dr. Patel\n3. **Mechanical Engineering:** Dr. Kumar\n4. **Civil Engineering:** Dr. Singh\n\nFor specific departmental queries, please contact the respective HOD's office.";
+      return "Department Information:\n\nI can provide details about department heads and faculty members. Please specify which department you're interested in:\n\n• Computer Engineering\n• Electronics & Telecommunication\n• Mechanical Engineering\n• Civil Engineering\n\nThis information is maintained by our faculty team.";
     }
 
     if (message.includes('event') || message.includes('today')) {
-      return "**Today's Events:**\n\n1. **Tech Fest 2024:** 10:00 AM - 4:00 PM in Main Auditorium\n2. **Guest Lecture:** 2:00 PM - 3:30 PM in Seminar Hall\n3. **Sports Practice:** 4:00 PM - 6:00 PM at Sports Ground\n\nFor more details, check the notice board or contact the student council.";
+      return "College Events Information:\n\nI can help you find information about college events and activities. The event details are regularly updated by our faculty members.\n\nFor the most current information, please ask about specific events or check with the administration office.";
     }
 
     if (message.includes('library')) {
-      return "**Library Information:**\n\n1. **Location:** Ground floor, Central Building\n2. **Timings:** 8:00 AM - 8:00 PM (Mon-Sat)\n3. **Contact:** library@college.edu\n4. **Phone:** +91-12345-67890\n5. **Librarian:** Ms. Gupta\n\nLibrary cards are mandatory for book borrowing.";
+      return "Library Information:\n\nI can provide details about our college library including:\n\n• Location and timings\n• Contact information\n• Services available\n• Library staff details\n\nThis information is maintained by our faculty team. Please ask for specific library details you need.";
     }
 
     if (message.includes('department') || message.includes('departments')) {
-      return "**Available Departments:**\n\n1. **Computer Engineering**\n2. **Electronics & Telecommunication**\n3. **Mechanical Engineering**\n4. **Civil Engineering**\n5. **Information Technology**\n6. **Electrical Engineering**\n\nEach department has dedicated faculty and modern laboratories.";
+      return "Available Departments:\n\nI can provide information about our college departments:\n\n• Computer Engineering\n• Electronics & Telecommunication\n• Mechanical Engineering\n• Civil Engineering\n• Information Technology\n• Electrical Engineering\n\nEach department has dedicated faculty and modern laboratories. Please ask about a specific department for more details.";
     }
 
     if (message.includes('timing') || message.includes('hours')) {
-      return "**College Timings:**\n\n1. **Regular Classes:** 9:00 AM - 4:00 PM\n2. **Library:** 8:00 AM - 8:00 PM\n3. **Office Hours:** 10:00 AM - 5:00 PM\n4. **Canteen:** 8:30 AM - 5:30 PM\n\n**Note:** Saturday classes are from 9:00 AM - 1:00 PM";
+      return "College Timings:\n\nHere are the general college timings:\n\n• Regular Classes: 9:00 AM - 4:00 PM\n• Library: 8:00 AM - 8:00 PM\n• Office Hours: 10:00 AM - 5:00 PM\n• Canteen: 8:30 AM - 5:30 PM\n\nNote: Saturday classes are from 9:00 AM - 1:00 PM\n\nFor specific department timings, please ask about that department.";
     }
 
     // Default response for college-related queries without specific data
-    return "This information is not available in the system currently. Please contact the concerned faculty member or visit the administrative office for details.\n\n**Administrative Office:**\n• Timing: 10:00 AM - 5:00 PM\n• Location: Ground floor, Admin Block\n• Phone: +91-12345-67891";
+    return "This information is not available in the system currently. Please contact the concerned faculty member or visit the administrative office for details.\n\nAdministrative Office:\n• Timing: 10:00 AM - 5:00 PM\n• Location: Ground floor, Admin Block\n• Phone: +91-12345-67891";
   };
 
   const handleSendMessage = async (messageText?: string) => {

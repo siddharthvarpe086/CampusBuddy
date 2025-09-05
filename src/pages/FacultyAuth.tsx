@@ -48,10 +48,13 @@ export default function FacultyAuth() {
     }
 
     setIsLoading(true);
+    console.log('Faculty login attempt with credentials:', formData.email, formData.password);
+    
     const { error } = await signIn(formData.email, formData.password);
     
     if (error) {
-      setError(error.message);
+      console.error('Faculty login error:', error);
+      setError('Faculty authentication failed: ' + error.message);
     } else {
       toast({
         title: "Faculty Access Granted",

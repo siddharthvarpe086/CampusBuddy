@@ -119,10 +119,12 @@ export const useAuthState = () => {
   };
 
   const signIn = async (email: string, password: string) => {
+    console.log('Attempting to sign in with:', email);
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
+    console.log('Sign in result:', error ? 'Error: ' + error.message : 'Success');
     return { error };
   };
 
