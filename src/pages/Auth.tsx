@@ -8,13 +8,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { NavigationBar } from '@/components/ui/navigation-bar';
 import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, GraduationCap, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const FACULTY_CREDENTIALS = {
-  email: 'faculty@college.edu',
-  password: 'faculty123'
+  email: 'TeamFaculty',
+  password: '123456'
 };
 
 export default function Auth() {
@@ -34,7 +33,7 @@ export default function Auth() {
     email: '',
     password: '',
     fullName: '',
-    userType: 'student'
+    userType: 'student'  // Always student for regular signup
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -132,7 +131,7 @@ export default function Auth() {
                     <Label htmlFor="signin-email">Email</Label>
                     <Input
                       id="signin-email"
-                      type="email"
+                      type="text"
                       placeholder="your.email@college.edu"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
@@ -232,24 +231,6 @@ export default function Auth() {
                       onChange={(e) => handleInputChange('password', e.target.value)}
                       className="transition-smooth focus:ring-primary"
                     />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label>Account Type</Label>
-                    <RadioGroup
-                      value={formData.userType}
-                      onValueChange={(value) => handleInputChange('userType', value)}
-                      className="flex gap-6"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="student" id="student" />
-                        <Label htmlFor="student" className="text-sm">Student</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="faculty" id="faculty" />
-                        <Label htmlFor="faculty" className="text-sm">Faculty</Label>
-                      </div>
-                    </RadioGroup>
                   </div>
 
                   {error && (
