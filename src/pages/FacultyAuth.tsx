@@ -61,7 +61,8 @@ export default function FacultyAuth() {
         FACULTY_CREDENTIALS.email, 
         FACULTY_CREDENTIALS.password, 
         'Faculty Admin',
-        'faculty'
+        'faculty',
+        true // Skip email confirmation for demo account
       );
       
       if (signUpError) {

@@ -17,7 +17,7 @@ interface AuthContextType {
   profile: Profile | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, userType?: string) => Promise<{ error?: any }>;
+  signUp: (email: string, password: string, fullName: string, userType?: string, skipConfirmation?: boolean) => Promise<{ error?: any }>;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
 }
@@ -101,19 +101,26 @@ export const useAuthState = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, userType: string = 'student') => {
+  const signUp = async (email: string, password: string, fullName: string, userType: string = 'student', skipConfirmation: boolean = false) => {
     const redirectUrl = `${window.location.origin}/`;
+    
+    const signUpOptions: any = {
+      emailRedirectTo: redirectUrl,
+      data: {
+        full_name: fullName,
+        user_type: userType
+      }
+    };
+    
+    // For demo accounts, skip email confirmation
+    if (skipConfirmation) {
+      signUpOptions.email_confirm = true;
+    }
     
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-          user_type: userType
-        }
-      }
+      options: signUpOptions
     });
     return { error };
   };
