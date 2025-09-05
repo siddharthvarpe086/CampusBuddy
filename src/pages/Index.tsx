@@ -148,22 +148,43 @@ const Index = () => {
 
         {/* CTA for Non-Authenticated Users */}
         {!user && (
-          <Card className="max-w-md mx-auto shadow-card">
-            <CardHeader className="text-center">
-              <CardTitle className="font-poppins">Ready to get started?</CardTitle>
-              <CardDescription>
-                Create your account or sign in to access the campus chat bot and get instant answers to your questions.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button 
-                onClick={() => navigate('/auth')} 
-                className="w-full gradient-campus hover:opacity-90"
-              >
-                Sign In / Sign Up
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <Card className="shadow-card">
+              <CardHeader className="text-center">
+                <CardTitle className="font-poppins">For Students</CardTitle>
+                <CardDescription>
+                  Create your account to access the campus chat bot and get instant answers to your questions.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => navigate('/auth')} 
+                  className="w-full gradient-campus hover:opacity-90"
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Student Access
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-card">
+              <CardHeader className="text-center">
+                <CardTitle className="font-poppins">For Faculty</CardTitle>
+                <CardDescription>
+                  Secure faculty portal to manage college data and train the AI model.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => navigate('/faculty-auth')} 
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Faculty Portal
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </main>
     </div>

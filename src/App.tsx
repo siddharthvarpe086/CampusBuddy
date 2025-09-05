@@ -7,6 +7,8 @@ import { AuthProvider } from "@/components/AuthProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StudentChat from "./pages/StudentChat";
+import FacultyAuth from "./pages/FacultyAuth";
+import FacultyDashboard from "./pages/FacultyDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/chat" element={<StudentChat />} />
+            <Route path="/faculty-auth" element={<FacultyAuth />} />
+            <Route path="/faculty-dashboard" element={<FacultyDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

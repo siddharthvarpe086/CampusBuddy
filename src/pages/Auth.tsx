@@ -187,10 +187,10 @@ export default function Auth() {
                     type="button"
                     variant="outline"
                     className="w-full mt-4 transition-smooth"
-                    onClick={handleFacultyLogin}
+                    onClick={() => navigate('/faculty-auth')}
                   >
                     <UserCheck className="mr-2 h-4 w-4" />
-                    Use Faculty Credentials
+                    Faculty Portal
                   </Button>
                 </div>
               </TabsContent>
