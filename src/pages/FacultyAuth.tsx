@@ -12,8 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 const FACULTY_CREDENTIALS = {
-  email: 'faculty@college.in',
-  password: '12345678'
+  email: 'keystone',
+  password: 'keystone'
 };
 
 export default function FacultyAuth() {
@@ -51,49 +51,61 @@ export default function FacultyAuth() {
     setIsLoading(true);
     console.log('Faculty login attempt with credentials:', formData.email, formData.password);
     
-    // Try to sign in first
-    const { error: signInError } = await signIn(formData.email, formData.password);
-    
-    if (signInError && signInError.message === 'Invalid login credentials') {
-      // If credentials don't exist, create the faculty account
-      console.log('Faculty account not found, creating...');
-      const { error: signUpError } = await signUp(
-        FACULTY_CREDENTIALS.email, 
-        FACULTY_CREDENTIALS.password, 
-        'Faculty Admin',
-        'faculty',
-        true // Skip email confirmation for demo account
-      );
+    try {
+      // Try to sign in first
+      const { error: signInError } = await signIn(formData.email, formData.password);
       
-      if (signUpError) {
-        console.error('Faculty signup error:', signUpError);
-        setError('Failed to create faculty account: ' + signUpError.message);
-        setIsLoading(false);
-        return;
-      }
+      if (signInError && (signInError.message === 'Invalid login credentials' || signInError.code === 'email_not_confirmed')) {
+        // Create faculty account using edge function
+        console.log('Creating faculty account via edge function...');
+        const { data: createResult, error: createFunctionError } = await supabase.functions.invoke('create-faculty');
+        
+        if (createFunctionError) {
+          console.error('Error calling create-faculty function:', createFunctionError);
+          setError('Failed to create faculty account: ' + createFunctionError.message);
+          setIsLoading(false);
+          return;
+        }
 
-      // After successful signup, try to sign in again
-      const { error: secondSignInError } = await signIn(formData.email, formData.password);
-      
-      if (secondSignInError) {
-        console.error('Faculty login after signup error:', secondSignInError);
-        setError('Faculty account created but login failed: ' + secondSignInError.message);
+        if (!createResult.success) {
+          console.error('Faculty creation failed:', createResult.error);
+          setError('Failed to create faculty account: ' + createResult.error);
+          setIsLoading(false);
+          return;
+        }
+
+        console.log('Faculty account created, attempting login...');
+        
+        // Wait a moment for the account to be ready
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Try to sign in with the created account
+        const { error: secondSignInError } = await signIn(formData.email, formData.password);
+        
+        if (secondSignInError) {
+          console.error('Faculty login after creation error:', secondSignInError);
+          setError('Faculty account created but login failed. Please try again.');
+          setIsLoading(false);
+          return;
+        }
+      } else if (signInError) {
+        console.error('Faculty login error:', signInError);
+        setError('Faculty authentication failed: ' + signInError.message);
         setIsLoading(false);
         return;
       }
-    } else if (signInError) {
-      console.error('Faculty login error:', signInError);
-      setError('Faculty authentication failed: ' + signInError.message);
+      
+      toast({
+        title: "Faculty Access Granted",
+        description: "Welcome to the faculty dashboard.",
+      });
+      navigate('/faculty-dashboard');
+    } catch (error) {
+      console.error('Unexpected error during faculty login:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
       setIsLoading(false);
-      return;
     }
-    
-    toast({
-      title: "Faculty Access Granted",
-      description: "Welcome to the faculty dashboard.",
-    });
-    navigate('/faculty-dashboard');
-    setIsLoading(false);
   };
 
   return (

@@ -51,7 +51,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavigationBar title="Campus Management System" />
+      <NavigationBar title="Campus Buddy" />
       
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
@@ -61,7 +61,7 @@ const Index = () => {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-foreground font-poppins mb-6">
-            AI-Powered Campus Management
+            AI-Powered Campus Buddy
           </h1>
           
           <p className="text-xl text-muted-foreground font-poppins mb-4">

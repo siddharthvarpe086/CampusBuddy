@@ -106,6 +106,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_faculty_account: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       setup_faculty_account: {
         Args: Record<PropertyKey, never>
         Returns: undefined

@@ -1,1 +1,4 @@
 project_id = "gqhwnhqcnsiywheidiad"
+
+[functions.create-faculty]
+verify_jwt = false
