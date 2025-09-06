@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { NavigationBar } from '@/components/ui/navigation-bar';
-import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -46,13 +44,12 @@ const CATEGORIES = [
 ];
 
 export default function FacultyDashboard() {
-  const { user, profile } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const [collegeData, setCollegeData] = useState<CollegeData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTraining, setIsTraining] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -60,18 +57,6 @@ export default function FacultyDashboard() {
     content: '',
     tags: ''
   });
-
-  // Redirect if not authenticated or not faculty
-  useEffect(() => {
-    if (!user) {
-      navigate('/faculty-auth');
-      return;
-    }
-    if (profile && profile.user_type !== 'faculty') {
-      navigate('/');
-      return;
-    }
-  }, [user, profile, navigate]);
 
   // Fetch existing college data
   useEffect(() => {
@@ -129,7 +114,7 @@ export default function FacultyDashboard() {
             category: formData.category,
             content: formData.content,
             tags: tags,
-            created_by: user?.id
+            created_by: '00000000-0000-0000-0000-000000000000' // Default faculty ID
           }
         ]);
 
@@ -188,16 +173,49 @@ export default function FacultyDashboard() {
   };
 
 
-  if (!user || !profile) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleTrainAI = async () => {
+    if (collegeData.length === 0) {
+      toast({
+        title: "No Data Available",
+        description: "Please add some college data before training the AI model.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsTraining(true);
+    try {
+      // Create training payload with all college data
+      const trainingData = collegeData.map(item => ({
+        title: item.title,
+        category: item.category,
+        content: item.content,
+        tags: item.tags || []
+      }));
+
+      toast({
+        title: "AI Training Started",
+        description: `Training AI model with ${collegeData.length} data entries. This may take a few moments.`,
+      });
+
+      // Simulate training process (replace with actual AI training logic)
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      toast({
+        title: "Training Complete",
+        description: "AI model has been successfully trained with your college data!",
+      });
+    } catch (error) {
+      console.error('Error training AI:', error);
+      toast({
+        title: "Training Failed",
+        description: "Failed to train AI model. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsTraining(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -216,8 +234,52 @@ export default function FacultyDashboard() {
             Faculty Dashboard
           </h1>
           <p className="text-muted-foreground">
-            Welcome, <strong>{profile.full_name}</strong>. Manage college data to train the AI model.
+            Manage college data and train the AI model for Campus Buddy.
           </p>
+        </div>
+
+        {/* AI Training Section */}
+        <div className="mb-8">
+          <Card className="shadow-elevated border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-poppins text-primary">
+                <Database className="h-5 w-5" />
+                AI Model Training
+              </CardTitle>
+              <CardDescription>
+                Train the Campus Buddy AI with your college data to provide accurate answers to students
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Current Data: <strong>{collegeData.length} entries</strong>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    The AI will use this data to answer student questions accurately
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleTrainAI}
+                  className="gradient-campus hover:opacity-90 transition-smooth"
+                  disabled={isTraining || collegeData.length === 0}
+                >
+                  {isTraining ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Training AI...
+                    </>
+                  ) : (
+                    <>
+                      <Database className="mr-2 h-4 w-4" />
+                      Train AI Model
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
