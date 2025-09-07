@@ -262,7 +262,7 @@ export default function StudentChat() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="✨ Ask me anything about the college..."
-                      className="border-0 bg-transparent text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 font-medium h-5"
+                      className="border-0 bg-transparent text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 font-medium h-8"
                       disabled={isTyping}
                     />
                   </div>

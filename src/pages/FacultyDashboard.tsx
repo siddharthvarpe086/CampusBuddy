@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,7 +45,6 @@ const CATEGORIES = [
 
 export default function FacultyDashboard() {
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const [collegeData, setCollegeData] = useState<CollegeData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -224,7 +222,6 @@ export default function FacultyDashboard() {
       <NavigationBar 
         title="Faculty Dashboard" 
         showBack 
-        onBack={() => navigate('/')}
       />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">
