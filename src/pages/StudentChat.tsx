@@ -92,112 +92,29 @@ export default function StudentChat() {
   };
 
   const generateBotResponse = async (userMessage: string): Promise<string> => {
-    const message = userMessage.toLowerCase().trim();
-
-    // Check if it's college-related
-    const collegeKeywords = ['lab', 'department', 'hod', 'library', 'event', 'college', 'timing', 'contact', 'faculty', 'staff', 'where', 'who', 'what', 'when', 'how', 'teacher', 'professor', 'phone', 'number', 'email', 'address', 'location'];
-    const isCollegeRelated = collegeKeywords.some(keyword => message.includes(keyword));
-
-    if (!isCollegeRelated) {
-      return "I can only provide details about college information. Please ask about:\n\n• Department locations and staff\n• College events and timings\n• Library and lab information\n• Faculty contact details";
-    }
-
     try {
-      // Fetch all college data from faculty-added information
-      const { data: collegeData, error } = await supabase
-        .from('college_data')
-        .select('*');
-
-      if (error) {
-        console.error('Error fetching college data:', error);
-        return "We will update soon.";
-      }
-
-      // If no data available
-      if (!collegeData || collegeData.length === 0) {
-        return "We will update soon.";
-      }
-
-      // Analyze the query for specific requests
-      const isContactQuery = message.includes('contact') || message.includes('phone') || message.includes('number') || message.includes('email');
-      const isLocationQuery = message.includes('where') || message.includes('location') || message.includes('address');
-      const isFacultyQuery = message.includes('teacher') || message.includes('faculty') || message.includes('professor') || message.includes('hod');
-      const isDepartmentQuery = message.includes('department');
-      
-      // Create search terms from the message
-      const searchTerms = message.split(' ').filter(word => 
-        word.length > 2 && !['the', 'and', 'for', 'are', 'can', 'you', 'how', 'what', 'where', 'when', 'why', 'who'].includes(word)
-      );
-
-      // Search through college data for relevant information
-      const relevantData = collegeData.filter(item => {
-        const searchText = `${item.title} ${item.content} ${item.category} ${item.tags?.join(' ') || ''}`.toLowerCase();
-        return searchTerms.some(term => searchText.includes(term));
+      // Call the Gemini AI edge function
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { message: userMessage }
       });
 
-      // If no relevant data found
-      if (relevantData.length === 0) {
-        return "We will update soon.";
+      if (error) {
+        console.error('Error calling AI chat function:', error);
+        return "I'm sorry, I'm having trouble processing your request right now. Please try again later or contact the college administration directly for assistance.";
       }
 
-      // If multiple results and query is ambiguous, ask for clarification
-      if (relevantData.length > 1) {
-        // Check if it's a contact/faculty query that might need clarification
-        if (isFacultyQuery || isContactQuery) {
-          const facultyData = relevantData.filter(item => 
-            item.category.toLowerCase().includes('faculty') || 
-            item.content.toLowerCase().includes('teacher') || 
-            item.content.toLowerCase().includes('professor') ||
-            item.category.toLowerCase().includes('contact')
-          );
-          
-          if (facultyData.length > 1) {
-            const options = facultyData.map(item => `• ${item.title}`).join('\n');
-            return `I found multiple faculty members. Please specify which one you're looking for:\n\n${options}\n\nFor example, you can ask: "Give me contact details of [specific name]" or mention their department or subject they teach.`;
-          }
-        }
-        
-        // Check if it's a location query that might need clarification
-        if (isLocationQuery) {
-          const locationData = relevantData.filter(item => 
-            item.category.toLowerCase().includes('facilities') || 
-            item.category.toLowerCase().includes('labs') ||
-            item.content.toLowerCase().includes('location') ||
-            item.content.toLowerCase().includes('floor') ||
-            item.content.toLowerCase().includes('building')
-          );
-          
-          if (locationData.length > 1) {
-            const options = locationData.map(item => `• ${item.title}`).join('\n');
-            return `I found multiple locations. Please specify which one you're looking for:\n\n${options}\n\nFor example, you can ask: "Where is the [specific lab/facility name]?"`;
-          }
-        }
-
-        // For department queries with multiple results
-        if (isDepartmentQuery && relevantData.length > 1) {
-          const deptData = relevantData.filter(item => 
-            item.category.toLowerCase().includes('department') ||
-            item.content.toLowerCase().includes('department')
-          );
-          
-          if (deptData.length > 1) {
-            const options = deptData.map(item => `• ${item.title}`).join('\n');
-            return `I found information about multiple departments. Please specify which department you're asking about:\n\n${options}`;
-          }
-        }
+      if (data?.response) {
+        return data.response;
+      } else if (data?.error) {
+        console.error('AI chat function error:', data.error);
+        return "I'm sorry, I'm having trouble accessing my knowledge base right now. Please try again later or contact the college administration directly for assistance.";
       }
 
-      // If we have 1-2 most relevant results, return them
-      const topResults = relevantData.slice(0, 2);
-      const response = topResults.map(item => {
-        return `**${item.title}**\n\n${item.content}`;
-      }).join('\n\n---\n\n');
-
-      return response;
+      return "I'm sorry, I didn't receive a proper response. Please try rephrasing your question or contact the college administration directly for assistance.";
 
     } catch (error) {
       console.error('Error processing request:', error);
-      return "We will update soon.";
+      return "I'm sorry, I'm having trouble processing your request right now. Please try again later or contact the college administration directly for assistance.";
     }
   };
 
