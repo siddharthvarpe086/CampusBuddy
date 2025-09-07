@@ -92,10 +92,10 @@ export default function StudentChat() {
   };
 
   const generateBotResponse = async (userMessage: string): Promise<string> => {
-    const message = userMessage.toLowerCase();
+    const message = userMessage.toLowerCase().trim();
 
     // Check if it's college-related
-    const collegeKeywords = ['lab', 'department', 'hod', 'library', 'event', 'college', 'timing', 'contact', 'faculty', 'staff', 'where', 'who', 'what', 'when', 'how'];
+    const collegeKeywords = ['lab', 'department', 'hod', 'library', 'event', 'college', 'timing', 'contact', 'faculty', 'staff', 'where', 'who', 'what', 'when', 'how', 'teacher', 'professor', 'phone', 'number', 'email', 'address', 'location'];
     const isCollegeRelated = collegeKeywords.some(keyword => message.includes(keyword));
 
     if (!isCollegeRelated) {
@@ -118,19 +118,79 @@ export default function StudentChat() {
         return "We will update soon.";
       }
 
+      // Analyze the query for specific requests
+      const isContactQuery = message.includes('contact') || message.includes('phone') || message.includes('number') || message.includes('email');
+      const isLocationQuery = message.includes('where') || message.includes('location') || message.includes('address');
+      const isFacultyQuery = message.includes('teacher') || message.includes('faculty') || message.includes('professor') || message.includes('hod');
+      const isDepartmentQuery = message.includes('department');
+      
+      // Create search terms from the message
+      const searchTerms = message.split(' ').filter(word => 
+        word.length > 2 && !['the', 'and', 'for', 'are', 'can', 'you', 'how', 'what', 'where', 'when', 'why', 'who'].includes(word)
+      );
+
       // Search through college data for relevant information
       const relevantData = collegeData.filter(item => {
         const searchText = `${item.title} ${item.content} ${item.category} ${item.tags?.join(' ') || ''}`.toLowerCase();
-        return message.split(' ').some(word => searchText.includes(word.toLowerCase()));
+        return searchTerms.some(term => searchText.includes(term));
       });
 
+      // If no relevant data found
       if (relevantData.length === 0) {
         return "We will update soon.";
       }
 
-      // Format and return the most relevant information
-      const response = relevantData.map(item => {
-        return `${item.title}:\n\n${item.content}`;
+      // If multiple results and query is ambiguous, ask for clarification
+      if (relevantData.length > 1) {
+        // Check if it's a contact/faculty query that might need clarification
+        if (isFacultyQuery || isContactQuery) {
+          const facultyData = relevantData.filter(item => 
+            item.category.toLowerCase().includes('faculty') || 
+            item.content.toLowerCase().includes('teacher') || 
+            item.content.toLowerCase().includes('professor') ||
+            item.category.toLowerCase().includes('contact')
+          );
+          
+          if (facultyData.length > 1) {
+            const options = facultyData.map(item => `• ${item.title}`).join('\n');
+            return `I found multiple faculty members. Please specify which one you're looking for:\n\n${options}\n\nFor example, you can ask: "Give me contact details of [specific name]" or mention their department or subject they teach.`;
+          }
+        }
+        
+        // Check if it's a location query that might need clarification
+        if (isLocationQuery) {
+          const locationData = relevantData.filter(item => 
+            item.category.toLowerCase().includes('facilities') || 
+            item.category.toLowerCase().includes('labs') ||
+            item.content.toLowerCase().includes('location') ||
+            item.content.toLowerCase().includes('floor') ||
+            item.content.toLowerCase().includes('building')
+          );
+          
+          if (locationData.length > 1) {
+            const options = locationData.map(item => `• ${item.title}`).join('\n');
+            return `I found multiple locations. Please specify which one you're looking for:\n\n${options}\n\nFor example, you can ask: "Where is the [specific lab/facility name]?"`;
+          }
+        }
+
+        // For department queries with multiple results
+        if (isDepartmentQuery && relevantData.length > 1) {
+          const deptData = relevantData.filter(item => 
+            item.category.toLowerCase().includes('department') ||
+            item.content.toLowerCase().includes('department')
+          );
+          
+          if (deptData.length > 1) {
+            const options = deptData.map(item => `• ${item.title}`).join('\n');
+            return `I found information about multiple departments. Please specify which department you're asking about:\n\n${options}`;
+          }
+        }
+      }
+
+      // If we have 1-2 most relevant results, return them
+      const topResults = relevantData.slice(0, 2);
+      const response = topResults.map(item => {
+        return `**${item.title}**\n\n${item.content}`;
       }).join('\n\n---\n\n');
 
       return response;
