@@ -29,7 +29,7 @@ export default function FacultyAuth() {
 
   return (
     <div className="min-h-screen bg-background page-enter">
-      <NavigationBar title="Faculty Portal" showBack />
+      <NavigationBar title="Faculty Portal" showBack onBack={() => navigate('/')} />
       
       <div className="container max-w-2xl mx-auto pt-8 px-4">
         <div className="text-center mb-8">
