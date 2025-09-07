@@ -17,7 +17,9 @@ import {
   BookOpen,
   Building,
   Clock,
-  Mail
+  Mail,
+  MessageCircle,
+  Sparkles
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -233,12 +235,12 @@ export default function StudentChat() {
 
           {isTyping && (
             <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                <div className="typing-indicator">...</div>
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+                <Sparkles className="h-4 w-4 text-white animate-pulse" />
               </div>
               <Card className="bg-card text-card-foreground border-border p-3 shadow-chat">
                 <p className="text-sm text-muted-foreground font-poppins">
-                  Campus Bot is typing...
+                  Campus Bot is thinking...
                 </p>
               </Card>
             </div>
@@ -248,27 +250,34 @@ export default function StudentChat() {
         </div>
 
         {/* Chat Input */}
-        <div className="p-4 border-t border-border bg-card">
+        <div className="p-6 border-t border-border bg-gradient-to-r from-card via-card/95 to-card backdrop-blur-sm">
           <div className="max-w-4xl mx-auto">
-            <div className="flex gap-2">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask whatever you want..."
-                className="flex-1 transition-smooth focus:ring-primary"
-                disabled={isTyping}
-              />
-              <Button
-                onClick={() => handleSendMessage()}
-                disabled={!inputValue.trim() || isTyping}
-                className="gradient-campus hover:opacity-90 transition-smooth"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 rounded-2xl blur-xl"></div>
+              <div className="relative bg-background/80 backdrop-blur-sm border-2 border-gradient rounded-2xl p-1 shadow-2xl">
+                <div className="flex gap-3 items-center p-3">
+                  <div className="flex-1 relative">
+                    <Input
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="✨ Ask me anything about the college..."
+                      className="border-0 bg-transparent text-lg placeholder:text-muted-foreground/60 focus-visible:ring-0 font-medium"
+                      disabled={isTyping}
+                    />
+                  </div>
+                  <Button
+                    onClick={() => handleSendMessage()}
+                    disabled={!inputValue.trim() || isTyping}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  >
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              I can only provide details about college information. Please ask about departments, events, facilities, or contact details.
+            <p className="text-xs text-muted-foreground/70 mt-3 text-center font-medium">
+              💬 I can provide details about departments, events, facilities, faculty, and contact information
             </p>
           </div>
         </div>
