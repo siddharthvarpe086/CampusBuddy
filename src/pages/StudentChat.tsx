@@ -250,11 +250,11 @@ export default function StudentChat() {
         </div>
 
         {/* Chat Input */}
-        <div className="p-6 border-t border-border bg-gradient-to-r from-card via-card/95 to-card backdrop-blur-sm">
+        <div className="p-6 border-t border-border">
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 rounded-2xl blur-xl"></div>
-              <div className="relative bg-transparent backdrop-blur-sm border-2 border-gradient rounded-2xl p-1 shadow-2xl">
+              <div className="relative bg-transparent border-2 border-gradient rounded-2xl p-1">
                 <div className="flex gap-3 items-center p-2">
                   <div className="flex-1 relative">
                     <Input
