@@ -43,7 +43,7 @@ export type Database = {
           category: string
           content: string
           created_at: string
-          created_by: string
+          created_by: string | null
           id: string
           tags: string[] | null
           title: string
@@ -53,7 +53,7 @@ export type Database = {
           category: string
           content: string
           created_at?: string
-          created_by: string
+          created_by?: string | null
           id?: string
           tags?: string[] | null
           title: string
@@ -63,7 +63,7 @@ export type Database = {
           category?: string
           content?: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           id?: string
           tags?: string[] | null
           title?: string

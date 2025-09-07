@@ -114,7 +114,7 @@ export default function FacultyDashboard() {
             category: formData.category,
             content: formData.content,
             tags: tags,
-            created_by: '00000000-0000-0000-0000-000000000000' // Default faculty ID
+            created_by: null // No user tracking needed for faculty operations
           }
         ]);
 
