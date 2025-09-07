@@ -254,24 +254,24 @@ export default function StudentChat() {
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 rounded-2xl blur-xl"></div>
-              <div className="relative bg-background/80 backdrop-blur-sm border-2 border-gradient rounded-2xl p-1 shadow-2xl">
-                <div className="flex gap-3 items-center p-3">
+              <div className="relative bg-transparent backdrop-blur-sm border-2 border-gradient rounded-2xl p-1 shadow-2xl">
+                <div className="flex gap-3 items-center p-2">
                   <div className="flex-1 relative">
                     <Input
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="✨ Ask me anything about the college..."
-                      className="border-0 bg-transparent text-lg placeholder:text-muted-foreground/60 focus-visible:ring-0 font-medium"
+                      className="border-0 bg-transparent text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 font-medium h-10"
                       disabled={isTyping}
                     />
                   </div>
                   <Button
                     onClick={() => handleSendMessage()}
                     disabled={!inputValue.trim() || isTyping}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-4 py-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                   >
-                    <Send className="h-5 w-5" />
+                    <Send className="h-4 w-4" />
                   </Button>
                 </div>
               </div>

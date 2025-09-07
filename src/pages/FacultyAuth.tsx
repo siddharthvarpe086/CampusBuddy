@@ -1,15 +1,30 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { NavigationBar } from '@/components/ui/navigation-bar';
-import { Shield, BookOpen, Bot, ArrowRight } from 'lucide-react';
+import { Shield, BookOpen, Bot, ArrowRight, Lock } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function FacultyAuth() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [facultyId, setFacultyId] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleFacultyAccess = () => {
-    navigate('/faculty-dashboard');
+    // Hardcoded credentials check
+    if (facultyId === 'Neuron' && password === 'Neuron') {
+      navigate('/faculty-dashboard');
+    } else {
+      toast({
+        title: "Authentication Failed",
+        description: "Invalid faculty ID or password. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -40,12 +55,37 @@ export default function FacultyAuth() {
                 Access the faculty dashboard to add college data, train the AI model, and manage campus information that students can query.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="faculty-id">Faculty ID</Label>
+                <Input 
+                  id="faculty-id"
+                  type="text" 
+                  placeholder="Enter your faculty ID"
+                  value={facultyId}
+                  onChange={(e) => setFacultyId(e.target.value)}
+                  className="transition-smooth"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input 
+                  id="password"
+                  type="password" 
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="transition-smooth"
+                />
+              </div>
+              
               <Button 
                 onClick={handleFacultyAccess}
-                className="w-full gradient-campus hover:opacity-90 transition-smooth text-lg py-6"
+                className="w-full gradient-campus hover:opacity-90 transition-smooth text-lg py-6 mt-6"
+                disabled={!facultyId.trim() || !password.trim()}
               >
-                <BookOpen className="mr-2 h-5 w-5" />
+                <Lock className="mr-2 h-5 w-5" />
                 Access Faculty Dashboard
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
