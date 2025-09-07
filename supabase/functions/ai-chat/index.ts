@@ -57,8 +57,8 @@ serve(async (req) => {
       throw new Error('Gemini API key not configured');
     }
 
-    // Prepare the system prompt for Gemini
-    const systemPrompt = `You are a helpful college information assistant. You have access to comprehensive college data including faculty information, contact details, departments, events, timings, and other college-related information.
+    // Prepare the prompt with college data context
+    const prompt = `You are a helpful college information assistant. You have access to comprehensive college data including faculty information, contact details, departments, events, timings, and other college-related information.
 
 Your task is to analyze the provided college data and answer student questions accurately and helpfully. Here's what you should do:
 
@@ -74,7 +74,9 @@ Your task is to analyze the provided college data and answer student questions a
 College Data:
 ${context}
 
-Remember: Use ALL the information above to provide intelligent, contextual responses. Don't just return search results - analyze and synthesize the information to give helpful answers.`;
+Remember: Use ALL the information above to provide intelligent, contextual responses. Don't just return search results - analyze and synthesize the information to give helpful answers.
+
+Student Question: ${message}`;
 
     // Call Gemini API
     const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
@@ -85,16 +87,10 @@ Remember: Use ALL the information above to provide intelligent, contextual respo
       body: JSON.stringify({
         contents: [
           {
+            role: 'user',
             parts: [
               {
-                text: systemPrompt
-              }
-            ]
-          },
-          {
-            parts: [
-              {
-                text: `Student Question: ${message}`
+                text: prompt
               }
             ]
           }
