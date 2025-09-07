@@ -102,17 +102,17 @@ export default function StudentChat() {
 
       if (error) {
         console.error('Error calling AI chat function:', error);
-        return "I'm sorry, I'm having trouble processing your request right now. Please try again later or contact the college administration directly for assistance.";
+        return "We will update soon, till then please refer to visit respective department's HOD office.";
       }
 
       if (data?.response) {
         return data.response;
       } else if (data?.error) {
         console.error('AI chat function error:', data.error);
-        return "I'm sorry, I'm having trouble accessing my knowledge base right now. Please try again later or contact the college administration directly for assistance.";
+        return "We will update soon, till then please refer to visit respective department's HOD office.";
       }
 
-      return "I'm sorry, I didn't receive a proper response. Please try rephrasing your question or contact the college administration directly for assistance.";
+      return "We will update soon, till then please refer to visit respective department's HOD office.";
 
     } catch (error) {
       console.error('Error processing request:', error);
@@ -262,7 +262,7 @@ export default function StudentChat() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="✨ Ask me anything about the college..."
-                      className="border-0 bg-transparent text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 font-medium h-10"
+                      className="border-0 bg-transparent text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 font-medium h-8"
                       disabled={isTyping}
                     />
                   </div>
