@@ -10,14 +10,14 @@ interface SuggestionCardProps {
 export const SuggestionCard = ({ title, icon: Icon, onClick }: SuggestionCardProps) => {
   return (
     <Card 
-      className="p-4 cursor-pointer transition-all duration-200 hover:shadow-elevated hover:-translate-y-1 bg-card border border-border shadow-card"
+      className="p-4 cursor-pointer card-hover bg-card border border-border shadow-card group"
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" />
+        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+          <Icon className="h-5 w-5 text-primary group-hover:scale-110 transition-transform duration-300" />
         </div>
-        <p className="text-sm font-medium text-card-foreground font-poppins">{title}</p>
+        <p className="text-sm font-medium text-card-foreground font-poppins group-hover:text-primary transition-colors duration-300">{title}</p>
       </div>
     </Card>
   );

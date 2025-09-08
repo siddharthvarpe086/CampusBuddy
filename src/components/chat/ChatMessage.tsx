@@ -17,10 +17,10 @@ export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) =>
         {isUser ? <User className="h-4 w-4" /> : <Sparkles className="h-4 w-4 animate-pulse" />}
       </div>
       
-      <Card className={`max-w-[80%] p-3 shadow-chat ${
+      <Card className={`max-w-[80%] p-3 shadow-chat transition-all duration-300 hover:shadow-elevated ${
         isUser 
-          ? 'bg-primary text-primary-foreground' 
-          : 'bg-card text-card-foreground border-border'
+          ? 'gradient-primary text-primary-foreground hover:shadow-glow' 
+          : 'bg-card text-card-foreground border-border hover:border-primary/20'
       }`}>
         {isUser ? (
           <p className="text-sm font-poppins leading-relaxed whitespace-pre-wrap">
