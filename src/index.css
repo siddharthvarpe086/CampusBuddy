@@ -4,67 +4,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modern Academic Design System - Emerald & Slate Theme */
+/* Deep Cosmic Theme - Blue, Magenta & Starlight */
 
 @layer base {
   :root {
-    /* Modern Academic Theme */
-    --background: 210 20% 98%;
-    --foreground: 215 20% 12%;
+    /* Cosmic Theme */
+    --background: 220 35% 8%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 20% 12%;
+    --card: 220 30% 12%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 20% 12%;
+    --popover: 220 30% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Emerald Primary */
-    --primary: 160 84% 39%;
+    /* Deep Cosmic Blue Primary */
+    --primary: 220 100% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 160 84% 35%;
-    --primary-light: 160 84% 95%;
+    --primary-hover: 220 100% 55%;
+    --primary-light: 220 100% 95%;
 
-    --secondary: 210 20% 95%;
-    --secondary-foreground: 215 20% 20%;
+    --secondary: 220 25% 15%;
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 20% 45%;
+    --muted: 220 30% 14%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 160 84% 92%;
-    --accent-foreground: 160 84% 25%;
+    --accent: 300 100% 70%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 0 0% 100%;
-    --ring: 160 84% 39%;
+    --border: 220 25% 18%;
+    --input: 220 30% 12%;
+    --ring: 220 100% 60%;
 
-    /* Custom Academic Colors */
-    --academic-emerald: 160 84% 39%;
-    --academic-emerald-light: 160 84% 92%;
-    --academic-emerald-dark: 160 84% 30%;
-    --academic-slate: 215 20% 45%;
-    --academic-slate-light: 210 20% 95%;
-    --academic-gold: 45 93% 58%;
-    --academic-gold-light: 45 93% 95%;
+    /* Custom Cosmic Colors */
+    --cosmic-blue: 220 100% 60%;
+    --cosmic-blue-light: 220 100% 85%;
+    --cosmic-blue-dark: 220 100% 40%;
+    --cosmic-magenta: 300 100% 70%;
+    --cosmic-magenta-light: 300 100% 90%;
+    --cosmic-magenta-dark: 300 100% 50%;
+    --starlight-white: 0 0% 98%;
+    --starlight-glow: 60 100% 95%;
     
-    /* Enhanced Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-hover)));
-    --gradient-academic: linear-gradient(135deg, hsl(var(--academic-emerald)), hsl(var(--academic-emerald-dark)));
+    /* Cosmic Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--cosmic-blue)), hsl(var(--cosmic-blue-dark)));
+    --gradient-cosmic: linear-gradient(135deg, hsl(var(--cosmic-blue)), hsl(var(--cosmic-magenta)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--academic-emerald-dark)) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(var(--cosmic-blue)) 0%, hsl(var(--cosmic-magenta)) 100%);
     --gradient-glass: linear-gradient(135deg, hsl(var(--background) / 0.95), hsl(var(--card) / 0.9));
-    --gradient-shimmer: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
-    --gradient-gold: linear-gradient(135deg, hsl(var(--academic-gold)), hsl(45 93% 50%));
+    --gradient-shimmer: linear-gradient(90deg, transparent, hsl(var(--starlight-white) / 0.1), transparent);
+    --gradient-starlight: linear-gradient(135deg, hsl(var(--starlight-white)), hsl(var(--starlight-glow)));
+    --gradient-nebula: radial-gradient(ellipse at center, hsl(var(--cosmic-magenta) / 0.3), hsl(var(--cosmic-blue) / 0.2), transparent);
 
-    /* Sophisticated Shadows */
-    --shadow-card: 0 4px 6px -1px hsl(var(--primary) / 0.08), 0 2px 4px -1px hsl(var(--primary) / 0.05);
-    --shadow-elevated: 0 20px 25px -5px hsl(var(--primary) / 0.1), 0 10px 10px -5px hsl(var(--primary) / 0.04);
-    --shadow-chat: 0 4px 6px -1px hsl(var(--primary) / 0.06), 0 2px 4px -1px hsl(var(--primary) / 0.04);
-    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.25);
-    --shadow-inner: inset 0 2px 4px 0 hsl(var(--primary) / 0.05);
-    --shadow-gold: 0 8px 16px -4px hsl(var(--academic-gold) / 0.15);
+    /* Cosmic Shadows */
+    --shadow-card: 0 4px 20px hsl(var(--cosmic-blue) / 0.15), 0 2px 8px hsl(var(--cosmic-magenta) / 0.1);
+    --shadow-elevated: 0 20px 40px hsl(var(--cosmic-blue) / 0.2), 0 10px 20px hsl(var(--cosmic-magenta) / 0.15);
+    --shadow-chat: 0 4px 16px hsl(var(--cosmic-blue) / 0.12), 0 2px 8px hsl(var(--cosmic-magenta) / 0.08);
+    --shadow-glow: 0 0 30px hsl(var(--cosmic-blue) / 0.4), 0 0 60px hsl(var(--cosmic-magenta) / 0.2);
+    --shadow-inner: inset 0 2px 8px hsl(var(--cosmic-blue) / 0.1);
+    --shadow-starlight: 0 0 20px hsl(var(--starlight-white) / 0.3);
 
     /* Refined Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -93,52 +95,53 @@
   }
 
   .dark {
-    --background: 215 28% 8%;
-    --foreground: 210 20% 95%;
+    --background: 220 40% 6%;
+    --foreground: 0 0% 98%;
 
-    --card: 215 28% 10%;
-    --card-foreground: 210 20% 95%;
+    --card: 220 35% 8%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 215 28% 10%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 220 35% 8%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 160 84% 45%;
+    --primary: 220 100% 65%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 160 84% 40%;
-    --primary-light: 160 84% 15%;
+    --primary-hover: 220 100% 60%;
+    --primary-light: 220 100% 15%;
 
-    --secondary: 215 28% 15%;
-    --secondary-foreground: 210 20% 85%;
+    --secondary: 220 30% 12%;
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 215 28% 12%;
-    --muted-foreground: 215 20% 60%;
+    --muted: 220 35% 10%;
+    --muted-foreground: 220 15% 70%;
 
-    --accent: 215 28% 15%;
-    --accent-foreground: 160 84% 45%;
+    --accent: 300 100% 75%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 210 20% 95%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 215 28% 18%;
-    --input: 215 28% 12%;
-    --ring: 160 84% 45%;
+    --border: 220 30% 15%;
+    --input: 220 35% 10%;
+    --ring: 220 100% 65%;
 
-    --academic-emerald: 160 84% 45%;
-    --academic-emerald-light: 160 84% 15%;
-    --academic-emerald-dark: 160 84% 35%;
-    --academic-slate: 215 20% 60%;
-    --academic-slate-light: 215 28% 15%;
-    --academic-gold: 45 93% 65%;
-    --academic-gold-light: 45 93% 15%;
+    --cosmic-blue: 220 100% 65%;
+    --cosmic-blue-light: 220 100% 15%;
+    --cosmic-blue-dark: 220 100% 45%;
+    --cosmic-magenta: 300 100% 75%;
+    --cosmic-magenta-light: 300 100% 15%;
+    --cosmic-magenta-dark: 300 100% 55%;
+    --starlight-white: 0 0% 98%;
+    --starlight-glow: 60 100% 95%;
 
-    --sidebar-background: 215 28% 8%;
-    --sidebar-foreground: 210 20% 90%;
-    --sidebar-primary: 160 84% 45%;
+    --sidebar-background: 220 35% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 220 100% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 28% 12%;
-    --sidebar-accent-foreground: 210 20% 90%;
-    --sidebar-border: 215 28% 18%;
-    --sidebar-ring: 160 84% 45%;
+    --sidebar-accent: 220 30% 12%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 220 30% 15%;
+    --sidebar-ring: 220 100% 65%;
   }
 }
 
@@ -152,21 +155,25 @@
     font-family: 'Poppins', sans-serif;
   }
 
-  /* Enhanced Custom Utilities */
+  /* Cosmic Custom Utilities */
   .gradient-primary {
     background: var(--gradient-primary);
   }
 
-  .gradient-academic {
-    background: var(--gradient-academic);
+  .gradient-cosmic {
+    background: var(--gradient-cosmic);
   }
 
   .gradient-hero {
     background: var(--gradient-hero);
   }
 
-  .gradient-gold {
-    background: var(--gradient-gold);
+  .gradient-starlight {
+    background: var(--gradient-starlight);
+  }
+
+  .gradient-nebula {
+    background: var(--gradient-nebula);
   }
 
   .gradient-glass {
@@ -314,7 +321,101 @@
     }
   }
 
-.typing-indicator {
+  .typing-indicator {
     animation: pulse 1.5s infinite;
+  }
+
+  /* Cosmic Particle Animations */
+  .cosmic-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    background: hsl(var(--starlight-white));
+    border-radius: 50%;
+    animation: float 6s infinite linear;
+  }
+
+  .particle:nth-child(odd) {
+    background: hsl(var(--cosmic-blue));
+    animation-duration: 8s;
+  }
+
+  .particle:nth-child(3n) {
+    background: hsl(var(--cosmic-magenta));
+    animation-duration: 10s;
+  }
+
+  .cosmic-shape {
+    position: absolute;
+    opacity: 0.1;
+    animation: rotate 20s infinite linear;
+  }
+
+  .cosmic-shape:nth-child(even) {
+    animation-direction: reverse;
+    animation-duration: 25s;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(100vh) translateX(0) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100px) translateX(100px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes twinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  .star {
+    position: absolute;
+    background: hsl(var(--starlight-white));
+    border-radius: 50%;
+    animation: twinkle 3s infinite;
+  }
+
+  .star:nth-child(2n) {
+    animation-delay: 1s;
+    animation-duration: 4s;
+  }
+
+  .star:nth-child(3n) {
+    animation-delay: 2s;
+    animation-duration: 5s;
   }
 }
