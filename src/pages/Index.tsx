@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { NavigationBar } from '@/components/ui/navigation-bar';
 import { useAuth } from '@/hooks/useAuth';
+import { CosmicLoader } from '@/components/ui/cosmic-loader';
 import { 
   GraduationCap, 
   MessageSquare, 
@@ -11,7 +11,10 @@ import {
   Settings,
   Bot,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  Brain,
+  Zap
 } from 'lucide-react';
 
 const Index = () => {
@@ -26,98 +29,101 @@ const Index = () => {
   }, [user, profile, loading, navigate]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+    return <CosmicLoader />;
   }
 
   const handleGetStarted = () => {
     if (user) {
       if (profile?.user_type === 'faculty') {
-        // Faculty dashboard - for future implementation
-        navigate('/chat');
+        navigate('/faculty-dashboard');
       } else {
         navigate('/chat');
       }
     } else {
-      navigate('/auth');
+      navigate('/user-type-selection');
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavigationBar title="Campus Buddy" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl animate-bounce animation-duration-3000"></div>
+        
+        {/* Floating particles */}
+        <div className="absolute top-1/3 left-1/5 w-2 h-2 bg-blue-400 rounded-full animate-bounce animation-delay-300"></div>
+        <div className="absolute top-2/3 left-3/4 w-1 h-1 bg-purple-400 rounded-full animate-bounce animation-delay-700"></div>
+        <div className="absolute bottom-1/3 left-2/3 w-3 h-3 bg-cyan-400 rounded-full animate-bounce animation-delay-1000"></div>
+      </div>
       
-      <main className="container mx-auto px-4 py-12">
+      <main className="relative z-10 container mx-auto px-4 py-16">
         {/* Hero Section */}
-        <div className="text-center max-w-4xl mx-auto mb-16">
-          <div className="w-20 h-20 gradient-campus rounded-full flex items-center justify-center mx-auto mb-6">
-            <GraduationCap className="h-10 w-10 text-white" />
+        <div className="text-center max-w-5xl mx-auto mb-20">
+          <div className="w-28 h-28 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-blue-500/30">
+            <GraduationCap className="h-14 w-14 text-white" />
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground font-poppins mb-6">
-            AI-Powered Campus Buddy
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent mb-8 leading-tight">
+            Campus Buddy
           </h1>
           
-          <p className="text-xl text-muted-foreground font-poppins mb-4">
-            Student Helpdesk Chat Bot
-          </p>
+          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm rounded-full px-6 py-3 mb-6 border border-blue-500/30">
+            <Sparkles className="h-5 w-5 text-blue-400" />
+            <span className="text-lg text-slate-200 font-medium">AI-Powered Campus Assistant</span>
+          </div>
           
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Get instant answers to all your college-related questions. From department locations 
-            to faculty contacts, our AI-powered chat bot has all the campus information you need.
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-12 leading-relaxed">
+            Get instant, accurate answers to all your college-related questions. From department locations 
+            to faculty contacts, our advanced AI assistant has comprehensive campus information at your fingertips.
           </p>
 
           <Button
             onClick={handleGetStarted}
             size="lg"
-            className="gradient-campus hover:opacity-90 transition-smooth text-lg px-8 py-6"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold text-xl px-12 py-6 rounded-2xl shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105"
           >
-            <MessageSquare className="mr-2 h-5 w-5" />
+            <MessageSquare className="mr-3 h-6 w-6" />
             {user ? 'Open Chat Bot' : 'Get Started'}
-            <ArrowRight className="ml-2 h-5 w-5" />
+            <ArrowRight className="ml-3 h-6 w-6" />
           </Button>
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
-                <Bot className="h-6 w-6 text-white" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-20">
+          <Card className="bg-gradient-to-br from-slate-800/50 to-blue-900/30 border-slate-700/50 backdrop-blur-sm transition-all duration-300 shadow-2xl">
+            <CardHeader className="pb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                <Brain className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="font-poppins">AI-Powered Responses</CardTitle>
-              <CardDescription>
-                Get instant, accurate answers powered by advanced AI technology trained on your campus data.
+              <CardTitle className="text-xl font-bold text-white mb-2">Smart AI Responses</CardTitle>
+              <CardDescription className="text-slate-300 leading-relaxed">
+                Advanced AI technology with OCR capabilities processes documents, images, and texts to provide accurate, contextual answers.
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
-                <BookOpen className="h-6 w-6 text-white" />
+          <Card className="bg-gradient-to-br from-slate-800/50 to-purple-900/30 border-slate-700/50 backdrop-blur-sm transition-all duration-300 shadow-2xl">
+            <CardHeader className="pb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                <BookOpen className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="font-poppins">Comprehensive Database</CardTitle>
-              <CardDescription>
-                Access information about departments, faculty, labs, events, and all campus facilities in one place.
+              <CardTitle className="text-xl font-bold text-white mb-2">Comprehensive Knowledge</CardTitle>
+              <CardDescription className="text-slate-300 leading-relaxed">
+                Complete campus information including departments, faculty, schedules, events, and facilities with multi-language support.
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-white" />
+          <Card className="bg-gradient-to-br from-slate-800/50 to-green-900/30 border-slate-700/50 backdrop-blur-sm transition-all duration-300 shadow-2xl">
+            <CardHeader className="pb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                <Zap className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="font-poppins">Faculty Management</CardTitle>
-              <CardDescription>
-                Faculty can easily update campus information to keep the knowledge base current and accurate.
+              <CardTitle className="text-xl font-bold text-white mb-2">Real-time Updates</CardTitle>
+              <CardDescription className="text-slate-300 leading-relaxed">
+                Faculty can instantly update information, upload documents with OCR processing for immediate AI integration.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -125,66 +131,38 @@ const Index = () => {
 
         {/* Current User Info */}
         {user && profile && (
-          <Card className="max-w-md mx-auto shadow-card">
+          <Card className="max-w-lg mx-auto bg-gradient-to-br from-slate-800/50 to-blue-900/30 border-slate-700/50 backdrop-blur-sm shadow-2xl">
             <CardHeader className="text-center">
-              <CardTitle className="font-poppins">Welcome back!</CardTitle>
-              <CardDescription>
-                <strong>{profile.full_name}</strong>
+              <CardTitle className="text-2xl font-bold text-white mb-2">Welcome back!</CardTitle>
+              <CardDescription className="text-slate-300">
+                <strong className="text-blue-400">{profile.full_name}</strong>
                 <br />
-                {profile.user_type === 'faculty' ? 'Faculty Member' : 'Student'} • {profile.email}
+                <span className="inline-flex items-center mt-2">
+                  {profile.user_type === 'faculty' ? (
+                    <>
+                      <Users className="h-4 w-4 text-purple-400 mr-1" />
+                      <span className="text-purple-400">Faculty Member</span>
+                    </>
+                  ) : (
+                    <>
+                      <GraduationCap className="h-4 w-4 text-blue-400 mr-1" />
+                      <span className="text-blue-400">Student</span>
+                    </>
+                  )}
+                  <span className="text-slate-400 ml-2">• {profile.email}</span>
+                </span>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={() => navigate('/chat')} 
-                className="w-full gradient-campus hover:opacity-90"
+                onClick={() => profile.user_type === 'faculty' ? navigate('/faculty-dashboard') : navigate('/chat')} 
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 text-lg shadow-xl hover:shadow-blue-500/30 transition-all duration-300"
               >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Open Chat Bot
+                <MessageSquare className="mr-2 h-5 w-5" />
+                {profile.user_type === 'faculty' ? 'Open Faculty Dashboard' : 'Open Chat Bot'}
               </Button>
             </CardContent>
           </Card>
-        )}
-
-        {/* CTA for Non-Authenticated Users */}
-        {!user && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            <Card className="shadow-card">
-              <CardHeader className="text-center">
-                <CardTitle className="font-poppins">For Students</CardTitle>
-                <CardDescription>
-                  Create your account to access the campus chat bot and get instant answers to your questions.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  onClick={() => navigate('/auth')} 
-                  className="w-full gradient-campus hover:opacity-90"
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Student Access
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card">
-              <CardHeader className="text-center">
-                <CardTitle className="font-poppins">For Faculty</CardTitle>
-                <CardDescription>
-                  Secure faculty portal to manage college data and train the AI model.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  onClick={() => navigate('/faculty-auth')} 
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                >
-                  <Settings className="mr-2 h-4 w-4" />
-                  Faculty Portal
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
         )}
       </main>
     </div>

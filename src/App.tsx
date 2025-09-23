@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import StudentChat from "./pages/StudentChat";
 import FacultyAuth from "./pages/FacultyAuth";
 import FacultyDashboard from "./pages/FacultyDashboard";
+import UserTypeSelection from "./pages/UserTypeSelection";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/chat" element={<StudentChat />} />
             <Route path="/faculty-auth" element={<FacultyAuth />} />
             <Route path="/faculty-dashboard" element={<FacultyDashboard />} />
+            <Route path="/user-type-selection" element={<UserTypeSelection />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
