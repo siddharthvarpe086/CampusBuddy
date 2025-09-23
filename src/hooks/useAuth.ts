@@ -8,6 +8,10 @@ interface Profile {
   full_name: string;
   email: string;
   user_type: 'student' | 'faculty';
+  division?: string;
+  year_of_study?: number;
+  branch?: string;
+  roll_number?: string;
   created_at: string;
   updated_at: string;
 }
@@ -17,7 +21,7 @@ interface AuthContextType {
   profile: Profile | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, userType?: string, skipConfirmation?: boolean) => Promise<{ error?: any }>;
+  signUp: (email: string, password: string, fullName: string, userType?: string, academicInfo?: { division?: string; yearOfStudy?: number; branch?: string; rollNumber?: string }, skipConfirmation?: boolean) => Promise<{ error?: any }>;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
 }
@@ -126,14 +130,20 @@ export const useAuthState = () => {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, userType: string = 'student', skipConfirmation: boolean = false) => {
+  const signUp = async (email: string, password: string, fullName: string, userType: string = 'student', academicInfo?: { division?: string; yearOfStudy?: number; branch?: string; rollNumber?: string }, skipConfirmation: boolean = false) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const signUpOptions: any = {
       emailRedirectTo: redirectUrl,
       data: {
         full_name: fullName,
-        user_type: userType
+        user_type: userType,
+        ...(academicInfo && {
+          division: academicInfo.division,
+          year_of_study: academicInfo.yearOfStudy,
+          branch: academicInfo.branch,
+          roll_number: academicInfo.rollNumber
+        })
       }
     };
     

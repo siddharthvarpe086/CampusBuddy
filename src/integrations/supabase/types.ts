@@ -85,31 +85,43 @@ export type Database = {
       }
       profiles: {
         Row: {
+          branch: string | null
           created_at: string
+          division: string | null
           email: string
           full_name: string
           id: string
+          roll_number: string | null
           updated_at: string
           user_id: string
           user_type: string
+          year_of_study: number | null
         }
         Insert: {
+          branch?: string | null
           created_at?: string
+          division?: string | null
           email: string
           full_name: string
           id?: string
+          roll_number?: string | null
           updated_at?: string
           user_id: string
           user_type?: string
+          year_of_study?: number | null
         }
         Update: {
+          branch?: string | null
           created_at?: string
+          division?: string | null
           email?: string
           full_name?: string
           id?: string
+          roll_number?: string | null
           updated_at?: string
           user_id?: string
           user_type?: string
+          year_of_study?: number | null
         }
         Relationships: []
       }

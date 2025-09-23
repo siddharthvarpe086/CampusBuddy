@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { NavigationBar } from '@/components/ui/navigation-bar';
 import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,6 +29,10 @@ export default function Auth() {
     email: '',
     password: '',
     fullName: '',
+    division: '',
+    yearOfStudy: '',
+    branch: '',
+    rollNumber: '',
     userType: 'student'  // Always student for regular signup
   });
 
@@ -38,13 +43,21 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email || !formData.password || !formData.fullName) {
+    if (!formData.email || !formData.password || !formData.fullName || !formData.division || !formData.yearOfStudy || !formData.branch || !formData.rollNumber) {
       setError('Please fill in all fields');
       return;
     }
 
     setIsLoading(true);
-    const { error } = await signUp(formData.email, formData.password, formData.fullName, formData.userType);
+    
+    const academicInfo = {
+      division: formData.division,
+      yearOfStudy: parseInt(formData.yearOfStudy),
+      branch: formData.branch,
+      rollNumber: formData.rollNumber
+    };
+    
+    const { error } = await signUp(formData.email, formData.password, formData.fullName, formData.userType, academicInfo);
     
     if (error) {
       setError(error.message);
@@ -173,6 +186,69 @@ export default function Auth() {
                       placeholder="Enter your full name"
                       value={formData.fullName}
                       onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      className="transition-smooth focus:ring-primary"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-division">Division</Label>
+                      <Select value={formData.division} onValueChange={(value) => handleInputChange('division', value)}>
+                        <SelectTrigger id="signup-division">
+                          <SelectValue placeholder="Select division" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="A">Division A</SelectItem>
+                          <SelectItem value="B">Division B</SelectItem>
+                          <SelectItem value="C">Division C</SelectItem>
+                          <SelectItem value="D">Division D</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-year">Year of Study</Label>
+                      <Select value={formData.yearOfStudy} onValueChange={(value) => handleInputChange('yearOfStudy', value)}>
+                        <SelectTrigger id="signup-year">
+                          <SelectValue placeholder="Select year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">First Year</SelectItem>
+                          <SelectItem value="2">Second Year</SelectItem>
+                          <SelectItem value="3">Third Year</SelectItem>
+                          <SelectItem value="4">Final Year</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-branch">Branch</Label>
+                    <Select value={formData.branch} onValueChange={(value) => handleInputChange('branch', value)}>
+                      <SelectTrigger id="signup-branch">
+                        <SelectValue placeholder="Select your branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Computer Engineering">Computer Engineering</SelectItem>
+                        <SelectItem value="Information Technology">Information Technology</SelectItem>
+                        <SelectItem value="Electronics and Telecommunication">Electronics and Telecommunication</SelectItem>
+                        <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                        <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                        <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
+                        <SelectItem value="Chemical Engineering">Chemical Engineering</SelectItem>
+                        <SelectItem value="Instrumentation Engineering">Instrumentation Engineering</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-roll">Roll Number</Label>
+                    <Input
+                      id="signup-roll"
+                      type="text"
+                      placeholder="Enter your roll number"
+                      value={formData.rollNumber}
+                      onChange={(e) => handleInputChange('rollNumber', e.target.value)}
                       className="transition-smooth focus:ring-primary"
                     />
                   </div>
