@@ -238,7 +238,7 @@ export default function FacultyDashboard() {
           } else {
             toast({
               title: "Success",
-              description: uploadedFile ? "College data and document added successfully!" : "College data added successfully!",
+              description: uploadedFile ? "College data added and document processed with Mistral AI OCR!" : "College data added successfully!",
             });
           }
         } catch (processError) {
@@ -371,10 +371,10 @@ export default function FacultyDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-poppins text-primary">
                 <Database className="h-5 w-5" />
-                AI Search System
+                AI Search System with Mistral OCR
               </CardTitle>
               <CardDescription>
-                The AI searches through your college data and documents in real-time to provide accurate answers
+                Enhanced with Mistral AI for OCR processing, layout preservation, and multi-language support. The AI searches through your documents and extracts structured content in real-time.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -462,7 +462,7 @@ export default function FacultyDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="file">Upload Document/Image (optional)</Label>
+                  <Label htmlFor="file">Upload Document/Image (enhanced with AI)</Label>
                   <div className="space-y-2">
                     <Input
                       ref={fileInputRef}
@@ -472,9 +472,16 @@ export default function FacultyDashboard() {
                       accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp"
                       className="transition-smooth"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Supported: PDF, Word, Excel, PowerPoint, Text files, Images (max 10MB)
-                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <p className="font-medium text-primary">🤖 AI-Enhanced Processing:</p>
+                      <ul className="ml-4 space-y-1">
+                        <li>• <strong>Images:</strong> OCR text extraction with layout preservation</li>
+                        <li>• <strong>PDFs/Documents:</strong> Intelligent content analysis and structuring</li>
+                        <li>• <strong>Tables/Timetables:</strong> Structure and formatting preservation</li>
+                        <li>• <strong>Multi-language:</strong> Support for various scripts and languages</li>
+                      </ul>
+                      <p className="mt-2">Supported: PDF, Word, Excel, PowerPoint, Text files, Images (max 10MB)</p>
+                    </div>
                     {uploadedFile && (
                       <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
                         <File className="h-4 w-4 text-primary" />
