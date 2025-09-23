@@ -398,12 +398,12 @@ export default function FacultyDashboard() {
                   {isTraining ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Optimizing...
+                      Feeding...
                     </>
                   ) : (
                     <>
                       <Database className="mr-2 h-4 w-4" />
-                      Optimize AI Search
+                      Feed Buddy
                     </>
                   )}
                 </Button>
