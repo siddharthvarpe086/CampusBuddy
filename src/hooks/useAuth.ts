@@ -73,22 +73,25 @@ export const useAuthState = () => {
       }
     };
 
-    // Set up auth state listener
+    // Set up auth state listener - CRITICAL: Must be synchronous to prevent deadlock
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return;
 
+        // Immediately update state synchronously
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false);
         
+        // Defer profile fetching to avoid deadlock
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          setTimeout(() => {
+            if (mounted) {
+              fetchProfile(session.user.id);
+            }
+          }, 0);
         } else {
           setProfile(null);
-        }
-        
-        if (mounted) {
-          setLoading(false);
         }
       }
     );
@@ -102,13 +105,10 @@ export const useAuthState = () => {
 
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false);
         
         if (session?.user) {
           await fetchProfile(session.user.id);
-        }
-        
-        if (mounted) {
-          setLoading(false);
         }
       } catch (error) {
         console.error('Error getting initial session:', error);
