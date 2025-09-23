@@ -55,62 +55,8 @@ serve(async (req) => {
       parsedContent = `PDF Document: ${fileName}\nContent: This PDF document has been uploaded and is available for reference. The AI can discuss its contents based on the title and category provided.`;
       console.log('Processed PDF file');
     } else if (fileType.includes('image/')) {
-      // Process images using Gemini Vision API for content extraction
-      const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
-      if (geminiApiKey) {
-        try {
-          const base64Image = btoa(String.fromCharCode(...uint8Array));
-          
-          const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              contents: [{
-                parts: [
-                  {
-                    text: "Analyze this image comprehensively. Extract all visible text, describe the content, identify objects, people, places, and any other relevant information. Be detailed and include any educational or institutional content you can see."
-                  },
-                  {
-                    inline_data: {
-                      mime_type: fileType,
-                      data: base64Image
-                    }
-                  }
-                ]
-              }],
-              generationConfig: {
-                temperature: 0.4,
-                topK: 32,
-                topP: 1,
-                maxOutputTokens: 2048,
-              }
-            }),
-          });
-
-          if (geminiResponse.ok) {
-            const geminiData = await geminiResponse.json();
-            if (geminiData.candidates && geminiData.candidates[0] && geminiData.candidates[0].content) {
-              const analyzedContent = geminiData.candidates[0].content.parts[0].text;
-              parsedContent = `Image Document: ${fileName}\nAnalyzed Content: ${analyzedContent}`;
-              console.log('Successfully analyzed image with Gemini Vision, content length:', analyzedContent.length);
-            } else {
-              parsedContent = `Image Document: ${fileName}\nContent: Image uploaded but analysis was incomplete. Visual content is available for reference.`;
-              console.log('Gemini analysis incomplete');
-            }
-          } else {
-            console.error('Gemini API error:', await geminiResponse.text());
-            parsedContent = `Image Document: ${fileName}\nContent: Image uploaded but analysis failed. Visual content is available for reference.`;
-          }
-        } catch (error) {
-          console.error('Error analyzing image with Gemini:', error);
-          parsedContent = `Image Document: ${fileName}\nContent: Image uploaded but analysis encountered an error. Visual content is available for reference.`;
-        }
-      } else {
-        parsedContent = `Image Document: ${fileName}\nContent: Image uploaded but no API key configured for analysis. Visual content is available for reference.`;
-        console.log('No Gemini API key available for image analysis');
-      }
+      // For images, we'll create a description
+      parsedContent = `Image Document: ${fileName}\nContent: This image has been uploaded and contains visual information relevant to the college. The AI can reference this image when discussing related topics.`;
       console.log('Processed image file');
     } else if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
       // For Word documents

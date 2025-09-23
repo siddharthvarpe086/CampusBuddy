@@ -57,15 +57,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				cosmic: {
-					blue: 'hsl(var(--cosmic-blue))',
-					'blue-light': 'hsl(var(--cosmic-blue-light))',
-					'blue-dark': 'hsl(var(--cosmic-blue-dark))',
-					magenta: 'hsl(var(--cosmic-magenta))',
-					'magenta-light': 'hsl(var(--cosmic-magenta-light))',
-					'magenta-dark': 'hsl(var(--cosmic-magenta-dark))',
-					starlight: 'hsl(var(--starlight-white))',
-					'starlight-glow': 'hsl(var(--starlight-glow))',
+				campus: {
+					blue: 'hsl(var(--campus-blue))',
+					'blue-light': 'hsl(var(--campus-blue-light))',
+					'blue-dark': 'hsl(var(--campus-blue-dark))',
+					gray: 'hsl(var(--campus-gray))',
+					'gray-light': 'hsl(var(--campus-gray-light))',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
