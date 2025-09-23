@@ -164,7 +164,7 @@ export default function SyncSpot() {
       <NavigationBar 
         title="SyncSpot" 
         showBack 
-        onBack={() => navigate('/student-chat')}
+        onBack={() => navigate('/chat')}
       />
       
       <div className="flex-1 max-w-4xl mx-auto w-full p-6">
