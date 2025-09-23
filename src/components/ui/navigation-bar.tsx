@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 interface NavigationBarProps {
-  title?: string;
+  title?: string | React.ReactNode;
   showBack?: boolean;
   onBack?: () => void;
   showMenu?: boolean;
@@ -25,7 +25,12 @@ export const NavigationBar = ({
     if (onBack) {
       onBack();
     } else {
-      navigate(-1);
+      // More intelligent back navigation
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate('/');
+      }
     }
   };
 
@@ -59,7 +64,9 @@ export const NavigationBar = ({
           </Button>
         )}
         
-        <h1 className="text-lg font-semibold text-foreground font-poppins">{title}</h1>
+        <h1 className="text-lg font-semibold text-foreground font-poppins">
+          {typeof title === 'string' ? title : title}
+        </h1>
       </div>
 
       <div className="flex items-center gap-2">

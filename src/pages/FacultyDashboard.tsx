@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { NavigationBar } from '@/components/ui/navigation-bar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, 
   Plus, 
@@ -52,6 +53,7 @@ const CATEGORIES = [
 
 export default function FacultyDashboard() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [collegeData, setCollegeData] = useState<CollegeData[]>([]);
@@ -349,6 +351,7 @@ export default function FacultyDashboard() {
       <NavigationBar 
         title="Faculty Dashboard" 
         showBack 
+        onBack={() => navigate('/')}
       />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">

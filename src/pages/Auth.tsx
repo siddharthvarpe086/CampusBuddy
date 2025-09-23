@@ -96,7 +96,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background page-enter">
-      <NavigationBar title="Campus Authentication" showBack />
+      <NavigationBar title="Campus Authentication" showBack onBack={() => navigate('/')} />
       
       <div className="container max-w-md mx-auto pt-8 px-4">
         <div className="text-center mb-8">
