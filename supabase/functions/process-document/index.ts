@@ -43,91 +43,33 @@ serve(async (req) => {
     const arrayBuffer = await fileData.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Get Mistral API key
-    const mistralApiKey = Deno.env.get('MISTRAL_API_KEY');
-    if (!mistralApiKey) {
-      throw new Error('Mistral API key not configured');
-    }
-
-    // Process different file types using Mistral AI OCR
+    // Process different file types
     if (fileType.includes('text/') || fileName.endsWith('.txt')) {
-      // Plain text files - decode directly
+      // Plain text files
       const decoder = new TextDecoder('utf-8');
       parsedContent = decoder.decode(uint8Array);
       console.log('Processed text file, length:', parsedContent.length);
-    } else if (fileName.endsWith('.pdf') || fileType.includes('image/') || 
-               fileName.endsWith('.docx') || fileName.endsWith('.doc') ||
-               fileName.endsWith('.xlsx') || fileName.endsWith('.xls') ||
-               fileName.endsWith('.pptx') || fileName.endsWith('.ppt')) {
-      
-      // Use Mistral AI OCR for document content extraction
-      try {
-        // Convert to base64 for Mistral API
-        const base64Data = btoa(String.fromCharCode(...uint8Array));
-        const mimeType = fileType || 'application/octet-stream';
-        
-        console.log('Sending to Mistral AI OCR for processing...');
-        
-        const mistralResponse = await fetch('https://api.mistral.ai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${mistralApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'pixtral-large-latest',
-            messages: [
-              {
-                role: 'user',
-                content: [
-                  {
-                    type: 'text',
-                    text: `Please extract all text content from this document. Preserve the layout, structure, tables, lists, and formatting as much as possible. Extract text in multiple languages if present. Include any important visual elements or diagrams descriptions. Be comprehensive and accurate as students rely on this information for their education.
-
-Document: ${fileName}
-Type: ${fileType}
-
-Please provide:
-1. Complete text extraction
-2. Structured layout preservation
-3. Table data in readable format
-4. Any important visual elements descriptions
-5. Maintain original language and scripts`
-                  },
-                  {
-                    type: 'image_url',
-                    image_url: {
-                      url: `data:${mimeType};base64,${base64Data}`
-                    }
-                  }
-                ]
-              }
-            ],
-            max_tokens: 4000,
-            temperature: 0.1
-          }),
-        });
-
-        if (!mistralResponse.ok) {
-          console.error('Mistral API error:', await mistralResponse.text());
-          throw new Error('Failed to process document with Mistral AI OCR');
-        }
-
-        const mistralData = await mistralResponse.json();
-        
-        if (mistralData.choices && mistralData.choices[0] && mistralData.choices[0].message) {
-          parsedContent = `Document: ${fileName}\nType: ${fileType}\n\nExtracted Content (via Mistral AI OCR):\n\n${mistralData.choices[0].message.content}`;
-          console.log('Successfully processed with Mistral AI OCR, content length:', parsedContent.length);
-        } else {
-          throw new Error('Invalid response from Mistral AI OCR');
-        }
-        
-      } catch (mistralError) {
-        console.error('Mistral AI processing failed:', mistralError);
-        // Fallback to basic description
-        parsedContent = `Document: ${fileName}\nType: ${fileType}\nContent: This document has been uploaded but could not be fully processed. The AI can reference this file when answering questions based on the title and category provided.`;
-        console.log('Used fallback description due to Mistral AI error');
-      }
+    } else if (fileName.endsWith('.pdf')) {
+      // For PDF files, we'll extract basic text content
+      // In a production environment, you'd use a proper PDF parser
+      parsedContent = `PDF Document: ${fileName}\nContent: This PDF document has been uploaded and is available for reference. The AI can discuss its contents based on the title and category provided.`;
+      console.log('Processed PDF file');
+    } else if (fileType.includes('image/')) {
+      // For images, we'll create a description
+      parsedContent = `Image Document: ${fileName}\nContent: This image has been uploaded and contains visual information relevant to the college. The AI can reference this image when discussing related topics.`;
+      console.log('Processed image file');
+    } else if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
+      // For Word documents
+      parsedContent = `Word Document: ${fileName}\nContent: This Microsoft Word document has been uploaded and contains detailed information. The AI can reference this document when providing answers.`;
+      console.log('Processed Word document');
+    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+      // For Excel documents
+      parsedContent = `Excel Document: ${fileName}\nContent: This Excel spreadsheet has been uploaded and contains structured data. The AI can reference this data when answering questions.`;
+      console.log('Processed Excel document');
+    } else if (fileName.endsWith('.pptx') || fileName.endsWith('.ppt')) {
+      // For PowerPoint documents
+      parsedContent = `PowerPoint Document: ${fileName}\nContent: This PowerPoint presentation has been uploaded and contains presentation slides. The AI can reference this content when answering questions.`;
+      console.log('Processed PowerPoint document');
     } else {
       // Generic file processing
       parsedContent = `Document: ${fileName}\nContent: This document has been uploaded and is available for reference. File type: ${fileType}`;

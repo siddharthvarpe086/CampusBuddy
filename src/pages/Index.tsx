@@ -39,7 +39,8 @@ const Index = () => {
   const handleGetStarted = () => {
     if (user) {
       if (profile?.user_type === 'faculty') {
-        navigate('/faculty-dashboard');
+        // Faculty dashboard - for future implementation
+        navigate('/chat');
       } else {
         navigate('/chat');
       }
@@ -55,8 +56,8 @@ const Index = () => {
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center max-w-4xl mx-auto mb-16">
-          <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-            <GraduationCap className="h-10 w-10 text-primary-foreground" />
+          <div className="w-20 h-20 gradient-campus rounded-full flex items-center justify-center mx-auto mb-6">
+            <GraduationCap className="h-10 w-10 text-white" />
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-foreground font-poppins mb-6">
@@ -75,7 +76,7 @@ const Index = () => {
           <Button
             onClick={handleGetStarted}
             size="lg"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6"
+            className="gradient-campus hover:opacity-90 transition-smooth text-lg px-8 py-6"
           >
             <MessageSquare className="mr-2 h-5 w-5" />
             {user ? 'Open Chat Bot' : 'Get Started'}
@@ -85,10 +86,10 @@ const Index = () => {
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
-          <Card className="shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
-                <Bot className="h-6 w-6 text-primary-foreground" />
+              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
+                <Bot className="h-6 w-6 text-white" />
               </div>
               <CardTitle className="font-poppins">AI-Powered Responses</CardTitle>
               <CardDescription>
@@ -97,10 +98,10 @@ const Index = () => {
             </CardHeader>
           </Card>
 
-          <Card className="shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
-                <BookOpen className="h-6 w-6 text-primary-foreground" />
+              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
+                <BookOpen className="h-6 w-6 text-white" />
               </div>
               <CardTitle className="font-poppins">Comprehensive Database</CardTitle>
               <CardDescription>
@@ -109,10 +110,10 @@ const Index = () => {
             </CardHeader>
           </Card>
 
-          <Card className="shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-primary-foreground" />
+              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
+                <Users className="h-6 w-6 text-white" />
               </div>
               <CardTitle className="font-poppins">Faculty Management</CardTitle>
               <CardDescription>
@@ -124,7 +125,7 @@ const Index = () => {
 
         {/* Current User Info */}
         {user && profile && (
-          <Card className="max-w-md mx-auto shadow-sm">
+          <Card className="max-w-md mx-auto shadow-card">
             <CardHeader className="text-center">
               <CardTitle className="font-poppins">Welcome back!</CardTitle>
               <CardDescription>
@@ -135,11 +136,11 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={() => profile.user_type === 'faculty' ? navigate('/faculty-dashboard') : navigate('/chat')} 
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => navigate('/chat')} 
+                className="w-full gradient-campus hover:opacity-90"
               >
                 <MessageSquare className="mr-2 h-4 w-4" />
-                {profile.user_type === 'faculty' ? 'Open Faculty Dashboard' : 'Open Chat Bot'}
+                Open Chat Bot
               </Button>
             </CardContent>
           </Card>
@@ -148,7 +149,7 @@ const Index = () => {
         {/* CTA for Non-Authenticated Users */}
         {!user && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            <Card className="shadow-sm">
+            <Card className="shadow-card">
               <CardHeader className="text-center">
                 <CardTitle className="font-poppins">For Students</CardTitle>
                 <CardDescription>
@@ -158,7 +159,7 @@ const Index = () => {
               <CardContent>
                 <Button 
                   onClick={() => navigate('/auth')} 
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="w-full gradient-campus hover:opacity-90"
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Student Access
@@ -166,7 +167,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm">
+            <Card className="shadow-card">
               <CardHeader className="text-center">
                 <CardTitle className="font-poppins">For Faculty</CardTitle>
                 <CardDescription>

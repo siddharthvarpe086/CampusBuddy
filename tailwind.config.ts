@@ -1,4 +1,4 @@
-import { fontFamily } from "tailwindcss/defaultTheme";
+import type { Config } from "tailwindcss";
 
 export default {
 	darkMode: ["class"],
@@ -19,8 +19,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ["var(--font-sans)", ...fontFamily.sans],
-				poppins: ['Poppins', 'sans-serif'],
+				'poppins': ['Poppins', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -30,7 +29,9 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					hover: 'hsl(var(--primary-hover))',
+					light: 'hsl(var(--primary-light))',
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -55,6 +56,13 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				campus: {
+					blue: 'hsl(var(--campus-blue))',
+					'blue-light': 'hsl(var(--campus-blue-light))',
+					'blue-dark': 'hsl(var(--campus-blue-dark))',
+					gray: 'hsl(var(--campus-gray))',
+					'gray-light': 'hsl(var(--campus-gray-light))',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
