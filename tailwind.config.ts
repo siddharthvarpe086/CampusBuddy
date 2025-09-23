@@ -37,7 +37,9 @@ export default {
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					foreground: 'hsl(var(--secondary-foreground))',
+					hover: 'hsl(var(--secondary-hover))',
+					light: 'hsl(var(--secondary-light))',
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -59,12 +61,21 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				campus: {
-					blue: 'hsl(var(--campus-blue))',
-					'blue-light': 'hsl(var(--campus-blue-light))',
-					'blue-dark': 'hsl(var(--campus-blue-dark))',
-					gray: 'hsl(var(--campus-gray))',
-					'gray-light': 'hsl(var(--campus-gray-light))',
+				academic: {
+					blue: 'hsl(var(--academic-blue))',
+					'blue-light': 'hsl(var(--academic-blue-light))',
+					'blue-dark': 'hsl(var(--academic-blue-dark))',
+					purple: 'hsl(var(--academic-purple))',
+					'purple-light': 'hsl(var(--academic-purple-light))',
+					'purple-dark': 'hsl(var(--academic-purple-dark))',
+					indigo: 'hsl(var(--academic-indigo))',
+					violet: 'hsl(var(--academic-violet))',
+				},
+				vibrant: {
+					emerald: 'hsl(var(--accent-emerald))',
+					cyan: 'hsl(var(--accent-cyan))',
+					pink: 'hsl(var(--accent-pink))',
+					orange: 'hsl(var(--accent-orange))',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -98,11 +109,36 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				fadeIn: {
+					'0%': { opacity: '0', transform: 'translateY(10px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				slideUp: {
+					'0%': { opacity: '0', transform: 'translateY(20px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				scaleIn: {
+					'0%': { opacity: '0', transform: 'scale(0.95)' },
+					'100%': { opacity: '1', transform: 'scale(1)' }
+				},
+				bounceGentle: {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
+				},
+				pulseSoft: {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fadeIn 0.5s ease-out',
+				'slide-up': 'slideUp 0.4s ease-out',
+				'scale-in': 'scaleIn 0.3s ease-out',
+				'bounce-gentle': 'bounceGentle 2s infinite',
+				'pulse-soft': 'pulseSoft 2s infinite',
 			}
 		}
 	},

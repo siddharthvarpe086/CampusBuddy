@@ -4,70 +4,83 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Campus Management Design System - Sky Blue Theme */
+/* Academic Design System - Blues & Purples Theme */
 
 @layer base {
   :root {
-    /* Sky Blue Theme */
-    --background: 210 40% 98%;
-    --foreground: 215 25% 15%;
+    /* Academic Theme - Light Mode */
+    --background: 220 15% 97%;
+    --foreground: 225 15% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 225 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 225 15% 15%;
 
-    /* Sky Blue Primary */
-    --primary: 203 89% 53%;
+    /* Academic Blue Primary */
+    --primary: 220 85% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 203 89% 48%;
-    --primary-light: 203 89% 90%;
+    --primary-hover: 220 85% 52%;
+    --primary-light: 220 85% 95%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 215 25% 25%;
+    /* Academic Purple Secondary */
+    --secondary: 260 60% 65%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-hover: 260 60% 58%;
+    --secondary-light: 260 60% 95%;
 
-    --muted: 210 40% 94%;
-    --muted-foreground: 215 15% 46%;
+    --muted: 220 15% 95%;
+    --muted-foreground: 225 12% 45%;
 
-    --accent: 203 89% 95%;
-    --accent-foreground: 203 89% 30%;
+    --accent: 280 70% 75%;
+    --accent-foreground: 280 70% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
+    --border: 220 15% 88%;
     --input: 0 0% 100%;
-    --ring: 203 89% 53%;
+    --ring: 220 85% 58%;
 
-    /* Custom Campus Colors */
-    --campus-blue: 203 89% 53%;
-    --campus-blue-light: 203 89% 90%;
-    --campus-blue-dark: 203 89% 40%;
-    --campus-gray: 215 15% 46%;
-    --campus-gray-light: 210 40% 96%;
+    /* Academic Color Palette */
+    --academic-blue: 220 85% 58%;
+    --academic-blue-light: 220 85% 92%;
+    --academic-blue-dark: 220 85% 45%;
+    --academic-purple: 260 60% 65%;
+    --academic-purple-light: 260 60% 90%;
+    --academic-purple-dark: 260 60% 50%;
+    --academic-indigo: 240 70% 60%;
+    --academic-violet: 280 70% 75%;
     
-    /* Enhanced Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-hover)));
-    --gradient-campus: linear-gradient(135deg, hsl(var(--campus-blue)), hsl(var(--campus-blue-dark)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--campus-blue-dark)) 100%);
+    /* Vibrant Accents */
+    --accent-emerald: 160 84% 39%;
+    --accent-cyan: 190 95% 42%;
+    --accent-pink: 330 81% 60%;
+    --accent-orange: 25 95% 53%;
+    
+    /* Modern Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--academic-blue)), hsl(var(--academic-purple)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--academic-purple)), hsl(var(--academic-violet)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--academic-blue)) 0%, hsl(var(--academic-purple)) 50%, hsl(var(--academic-violet)) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--academic-blue-light)) 100%);
     --gradient-glass: linear-gradient(135deg, hsl(var(--background) / 0.95), hsl(var(--card) / 0.9));
-    --gradient-shimmer: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
+    --gradient-accent: linear-gradient(90deg, hsl(var(--accent-cyan)), hsl(var(--accent-emerald)));
+    --gradient-shimmer: linear-gradient(90deg, transparent, hsl(var(--academic-blue) / 0.15), transparent);
 
     /* Sophisticated Shadows */
-    --shadow-card: 0 4px 6px -1px hsl(var(--primary) / 0.1), 0 2px 4px -1px hsl(var(--primary) / 0.06);
-    --shadow-elevated: 0 20px 25px -5px hsl(var(--primary) / 0.1), 0 10px 10px -5px hsl(var(--primary) / 0.04);
-    --shadow-chat: 0 4px 6px -1px hsl(var(--primary) / 0.08), 0 2px 4px -1px hsl(var(--primary) / 0.05);
-    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.3);
-    --shadow-inner: inset 0 2px 4px 0 hsl(var(--primary) / 0.06);
+    --shadow-card: 0 4px 6px -1px hsl(var(--academic-blue) / 0.1), 0 2px 4px -1px hsl(var(--academic-blue) / 0.06);
+    --shadow-elevated: 0 20px 25px -5px hsl(var(--academic-blue) / 0.15), 0 10px 10px -5px hsl(var(--academic-blue) / 0.08);
+    --shadow-purple: 0 8px 16px -4px hsl(var(--academic-purple) / 0.2);
+    --shadow-glow: 0 0 30px hsl(var(--academic-blue) / 0.3);
+    --shadow-accent: 0 4px 12px hsl(var(--accent-emerald) / 0.25);
 
-    /* Refined Animations */
+    /* Smooth Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --transition-page: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-elegant: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
     --radius: 12px;
 
@@ -89,41 +102,53 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Academic Theme - Dark Mode */
+    --background: 225 25% 8%;
+    --foreground: 220 15% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 225 25% 10%;
+    --card-foreground: 220 15% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 225 25% 10%;
+    --popover-foreground: 220 15% 92%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 220 85% 65%;
+    --primary-foreground: 225 25% 8%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 260 60% 70%;
+    --secondary-foreground: 225 25% 8%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 225 25% 12%;
+    --muted-foreground: 220 12% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 280 70% 80%;
+    --accent-foreground: 225 25% 8%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 65%;
+    --destructive-foreground: 225 25% 8%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 225 25% 15%;
+    --input: 225 25% 12%;
+    --ring: 220 85% 65%;
+
+    /* Dark mode academic colors */
+    --academic-blue: 220 85% 65%;
+    --academic-blue-light: 220 85% 25%;
+    --academic-blue-dark: 220 85% 45%;
+    --academic-purple: 260 60% 70%;
+    --academic-purple-light: 260 60% 25%;
+    --academic-purple-dark: 260 60% 50%;
+    --academic-indigo: 240 70% 65%;
+    --academic-violet: 280 70% 80%;
+
+    --sidebar-background: 225 25% 8%;
+    --sidebar-foreground: 220 15% 92%;
+    --sidebar-primary: 220 85% 65%;
+    --sidebar-primary-foreground: 225 25% 8%;
+    --sidebar-accent: 225 25% 12%;
+    --sidebar-accent-foreground: 220 15% 92%;
+    --sidebar-border: 225 25% 15%;
+    --sidebar-ring: 220 85% 65%;
   }
 }
 
@@ -139,23 +164,31 @@
     letter-spacing: -0.01em;
   }
 
-  /* Enhanced Custom Utilities */
+  /* Academic Design Utilities */
   .gradient-primary {
     background: var(--gradient-primary);
   }
 
-  .gradient-campus {
-    background: var(--gradient-campus);
+  .gradient-secondary {
+    background: var(--gradient-secondary);
   }
 
   .gradient-hero {
     background: var(--gradient-hero);
   }
 
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
   .gradient-glass {
     background: var(--gradient-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .gradient-accent {
+    background: var(--gradient-accent);
   }
 
   .shadow-card {
@@ -166,49 +199,57 @@
     box-shadow: var(--shadow-elevated);
   }
 
-  .shadow-chat {
-    box-shadow: var(--shadow-chat);
+  .shadow-purple {
+    box-shadow: var(--shadow-purple);
   }
 
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
 
-  .shadow-inner {
-    box-shadow: var(--shadow-inner);
+  .shadow-accent {
+    box-shadow: var(--shadow-accent);
   }
 
   .transition-smooth {
     transition: var(--transition-smooth);
   }
 
+  .transition-spring {
+    transition: var(--transition-spring);
+  }
+
   .transition-bounce {
     transition: var(--transition-bounce);
   }
 
-  .transition-page {
-    transition: var(--transition-page);
+  .transition-elegant {
+    transition: var(--transition-elegant);
   }
 
   .transition-fast {
     transition: var(--transition-fast);
   }
 
-  .transition-spring {
-    transition: var(--transition-spring);
-  }
-
-  /* Enhanced Interactive Elements */
+  /* Academic Interactive Elements */
   .btn-hover-lift {
-    @apply transition-all duration-300 hover:shadow-elevated hover:-translate-y-1;
+    @apply transition-spring hover:shadow-elevated hover:-translate-y-2 hover:scale-[1.02];
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-elevated hover:-translate-y-1 hover:scale-[1.02];
+    @apply transition-elegant hover:shadow-purple hover:-translate-y-1 hover:scale-[1.01];
+  }
+
+  .card-academic {
+    @apply bg-card shadow-card border border-border transition-elegant hover:shadow-elevated hover:-translate-y-1;
   }
 
   .glass-effect {
-    @apply bg-white/10 backdrop-blur-sm border border-white/20;
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border border-border/50;
+  }
+
+  .accent-glow {
+    @apply transition-smooth hover:shadow-accent;
   }
 
   .shimmer {
