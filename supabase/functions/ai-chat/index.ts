@@ -49,6 +49,19 @@ serve(async (req) => {
       throw new Error('Failed to fetch college data');
     }
 
+    // Fetch SyncSpot answers for additional context
+    const { data: syncSpotData, error: syncSpotError } = await supabase
+      .from('syncspot_questions')
+      .select(`
+        *,
+        syncspot_answers (*)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (syncSpotError) {
+      console.error('SyncSpot data error:', syncSpotError);
+    }
+
     // Prepare context from all college data including documents
     const context = collegeData?.map((item: CollegeData) => {
       const tags = item.tags ? item.tags.join(', ') : '';
@@ -67,6 +80,19 @@ serve(async (req) => {
       return contextStr + '\n---';
     }).join('\n\n') || '';
 
+    // Add SyncSpot community answers to context
+    const syncSpotContext = syncSpotData?.map((question: any) => {
+      if (question.syncspot_answers && question.syncspot_answers.length > 0) {
+        const answers = question.syncspot_answers.map((answer: any) => 
+          `Answer: ${answer.answer}`
+        ).join('\n');
+        return `Community Q&A:\nQuestion: ${question.question}\n${answers}\n---`;
+      }
+      return '';
+    }).filter(Boolean).join('\n\n') || '';
+
+    const fullContext = [context, syncSpotContext].filter(Boolean).join('\n\n');
+
     // Get Gemini API key
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
@@ -74,24 +100,25 @@ serve(async (req) => {
     }
 
     // Prepare the prompt with college data context
-    const prompt = `You are a helpful college information assistant with real-time access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and other college-related information.
+    const prompt = `You are a helpful college information assistant with real-time access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and community-generated answers from students.
 
 IMPORTANT: You do NOT store or remember this information. Instead, you search through the provided data in real-time for each question to find the most relevant and up-to-date answers.
 
 Your task is to intelligently search and analyze the provided college data to answer student questions accurately:
 
-1. SEARCH COMPREHENSIVELY: Look through ALL provided college data, including document content, to find relevant information
+1. SEARCH COMPREHENSIVELY: Look through ALL provided college data, including document content and community answers, to find relevant information
 2. PRIORITIZE ACCURACY: If you find specific information requested, provide it directly and clearly
 3. USE INTELLIGENCE: For partial matches, use your reasoning to provide the most relevant information
 4. PROVIDE COMPLETE ANSWERS: Include contact info, phone numbers, emails, departments, and any available details when relevant
 5. BE CONVERSATIONAL: Sound helpful and natural, not robotic
 6. HANDLE DOCUMENTS: When referencing uploaded documents (PDFs, Word docs, images, etc.), mention that the information comes from official college documents
-7. ADMIT LIMITATIONS: If you cannot find the requested information in the current data, politely say so and suggest alternatives
-8. SEARCH VARIATIONS: For faculty queries, search by name variations, department, subjects taught, or related keywords
-9. SYNTHESIZE INFORMATION: Provide comprehensive answers by combining related information from multiple sources
+7. USE COMMUNITY KNOWLEDGE: When referencing community answers, acknowledge that the information comes from student community
+8. ADMIT LIMITATIONS: If you cannot find the requested information in the current data, respond with exactly: "NO_INFO_AVAILABLE: [original question]"
+9. SEARCH VARIATIONS: For faculty queries, search by name variations, department, subjects taught, or related keywords
+10. SYNTHESIZE INFORMATION: Provide comprehensive answers by combining related information from multiple sources
 
-College Data and Documents:
-${context}
+College Data, Documents, and Community Answers:
+${fullContext}
 
 Remember: You are searching through this data in REAL-TIME for each question. You don't remember previous conversations or data - you search fresh each time to ensure accuracy and up-to-date responses.
 
@@ -137,6 +164,14 @@ Student Question: ${message}`;
     }
 
     const aiResponse = geminiData.candidates[0].content.parts[0].text;
+
+    // Check if AI couldn't find information and should redirect to SyncSpot
+    if (aiResponse.startsWith('NO_INFO_AVAILABLE:')) {
+      const question = aiResponse.replace('NO_INFO_AVAILABLE:', '').trim();
+      return new Response(JSON.stringify({ noAnswer: true, question: question || message }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

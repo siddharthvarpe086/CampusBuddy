@@ -11,7 +11,8 @@ import {
   Settings,
   Bot,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  Globe
 } from 'lucide-react';
 
 const Index = () => {
@@ -113,6 +114,18 @@ const Index = () => {
           <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
               <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
+                <Globe className="h-6 w-6 text-white" />
+              </div>
+              <CardTitle className="font-poppins">Community Q&A</CardTitle>
+              <CardDescription>
+                SyncSpot - Where students collaborate to answer questions that stump the AI.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
+            <CardHeader>
+              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
                 <Users className="h-6 w-6 text-white" />
               </div>
               <CardTitle className="font-poppins">Faculty Management</CardTitle>
@@ -135,13 +148,23 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                onClick={() => navigate('/chat')} 
-                className="w-full gradient-campus hover:opacity-90"
-              >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Open Chat Bot
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => navigate('/chat')} 
+                  className="flex-1 gradient-campus hover:opacity-90"
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Chat Bot
+                </Button>
+                <Button 
+                  onClick={() => navigate('/syncspot')} 
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <Globe className="mr-2 h-4 w-4" />
+                  SyncSpot
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}

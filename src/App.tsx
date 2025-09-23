@@ -7,6 +7,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StudentChat from "./pages/StudentChat";
+import SyncSpot from "./pages/SyncSpot";
 import FacultyAuth from "./pages/FacultyAuth";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/chat" element={<StudentChat />} />
+            <Route path="/syncspot" element={<SyncSpot />} />
             <Route path="/faculty-auth" element={<FacultyAuth />} />
             <Route path="/faculty-dashboard" element={<FacultyDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
