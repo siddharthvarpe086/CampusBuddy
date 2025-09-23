@@ -1,154 +1,92 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Academic Design System - Blues & Purples Theme */
+/* Original Campus Buddy Design System */
 
 @layer base {
   :root {
-    /* Academic Theme - Light Mode */
-    --background: 220 15% 97%;
-    --foreground: 225 15% 15%;
+    /* Original Theme */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 225 15% 15%;
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 225 15% 15%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    /* Academic Blue Primary */
-    --primary: 220 85% 58%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 85% 52%;
-    --primary-light: 220 85% 95%;
+    /* Blue Primary */
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
 
-    /* Academic Purple Secondary */
-    --secondary: 260 60% 65%;
-    --secondary-foreground: 0 0% 100%;
-    --secondary-hover: 260 60% 58%;
-    --secondary-light: 260 60% 95%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
 
-    --muted: 220 15% 95%;
-    --muted-foreground: 225 12% 45%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 280 70% 75%;
-    --accent-foreground: 280 70% 15%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 88%;
-    --input: 0 0% 100%;
-    --ring: 220 85% 58%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
 
-    /* Academic Color Palette */
-    --academic-blue: 220 85% 58%;
-    --academic-blue-light: 220 85% 92%;
-    --academic-blue-dark: 220 85% 45%;
-    --academic-purple: 260 60% 65%;
-    --academic-purple-light: 260 60% 90%;
-    --academic-purple-dark: 260 60% 50%;
-    --academic-indigo: 240 70% 60%;
-    --academic-violet: 280 70% 75%;
-    
-    /* Vibrant Accents */
-    --accent-emerald: 160 84% 39%;
-    --accent-cyan: 190 95% 42%;
-    --accent-pink: 330 81% 60%;
-    --accent-orange: 25 95% 53%;
-    
-    /* Modern Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--academic-blue)), hsl(var(--academic-purple)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--academic-purple)), hsl(var(--academic-violet)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--academic-blue)) 0%, hsl(var(--academic-purple)) 50%, hsl(var(--academic-violet)) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--academic-blue-light)) 100%);
-    --gradient-glass: linear-gradient(135deg, hsl(var(--background) / 0.95), hsl(var(--card) / 0.9));
-    --gradient-accent: linear-gradient(90deg, hsl(var(--accent-cyan)), hsl(var(--accent-emerald)));
-    --gradient-shimmer: linear-gradient(90deg, transparent, hsl(var(--academic-blue) / 0.15), transparent);
-
-    /* Sophisticated Shadows */
-    --shadow-card: 0 4px 6px -1px hsl(var(--academic-blue) / 0.1), 0 2px 4px -1px hsl(var(--academic-blue) / 0.06);
-    --shadow-elevated: 0 20px 25px -5px hsl(var(--academic-blue) / 0.15), 0 10px 10px -5px hsl(var(--academic-blue) / 0.08);
-    --shadow-purple: 0 8px 16px -4px hsl(var(--academic-purple) / 0.2);
-    --shadow-glow: 0 0 30px hsl(var(--academic-blue) / 0.3);
-    --shadow-accent: 0 4px 12px hsl(var(--accent-emerald) / 0.25);
-
-    /* Smooth Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --transition-elegant: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-    --radius: 12px;
+    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    /* Academic Theme - Dark Mode */
-    --background: 225 25% 8%;
-    --foreground: 220 15% 92%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    --card: 225 25% 10%;
-    --card-foreground: 220 15% 92%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 225 25% 10%;
-    --popover-foreground: 220 15% 92%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 220 85% 65%;
-    --primary-foreground: 225 25% 8%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 260 60% 70%;
-    --secondary-foreground: 225 25% 8%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 225 25% 12%;
-    --muted-foreground: 220 12% 65%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 280 70% 80%;
-    --accent-foreground: 225 25% 8%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 75% 65%;
-    --destructive-foreground: 225 25% 8%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 225 25% 15%;
-    --input: 225 25% 12%;
-    --ring: 220 85% 65%;
-
-    /* Dark mode academic colors */
-    --academic-blue: 220 85% 65%;
-    --academic-blue-light: 220 85% 25%;
-    --academic-blue-dark: 220 85% 45%;
-    --academic-purple: 260 60% 70%;
-    --academic-purple-light: 260 60% 25%;
-    --academic-purple-dark: 260 60% 50%;
-    --academic-indigo: 240 70% 65%;
-    --academic-violet: 280 70% 80%;
-
-    --sidebar-background: 225 25% 8%;
-    --sidebar-foreground: 220 15% 92%;
-    --sidebar-primary: 220 85% 65%;
-    --sidebar-primary-foreground: 225 25% 8%;
-    --sidebar-accent: 225 25% 12%;
-    --sidebar-accent-foreground: 220 15% 92%;
-    --sidebar-border: 225 25% 15%;
-    --sidebar-ring: 220 85% 65%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -159,186 +97,6 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    line-height: 1.6;
-    letter-spacing: -0.01em;
-  }
-
-  /* Academic Design Utilities */
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-
-  .gradient-secondary {
-    background: var(--gradient-secondary);
-  }
-
-  .gradient-hero {
-    background: var(--gradient-hero);
-  }
-
-  .gradient-card {
-    background: var(--gradient-card);
-  }
-
-  .gradient-glass {
-    background: var(--gradient-glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  .gradient-accent {
-    background: var(--gradient-accent);
-  }
-
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-
-  .shadow-elevated {
-    box-shadow: var(--shadow-elevated);
-  }
-
-  .shadow-purple {
-    box-shadow: var(--shadow-purple);
-  }
-
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .shadow-accent {
-    box-shadow: var(--shadow-accent);
-  }
-
-  .transition-smooth {
-    transition: var(--transition-smooth);
-  }
-
-  .transition-spring {
-    transition: var(--transition-spring);
-  }
-
-  .transition-bounce {
-    transition: var(--transition-bounce);
-  }
-
-  .transition-elegant {
-    transition: var(--transition-elegant);
-  }
-
-  .transition-fast {
-    transition: var(--transition-fast);
-  }
-
-  /* Academic Interactive Elements */
-  .btn-hover-lift {
-    @apply transition-spring hover:shadow-elevated hover:-translate-y-2 hover:scale-[1.02];
-  }
-
-  .card-hover {
-    @apply transition-elegant hover:shadow-purple hover:-translate-y-1 hover:scale-[1.01];
-  }
-
-  .card-academic {
-    @apply bg-card shadow-card border border-border transition-elegant hover:shadow-elevated hover:-translate-y-1;
-  }
-
-  .glass-effect {
-    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border border-border/50;
-  }
-
-  .accent-glow {
-    @apply transition-smooth hover:shadow-accent;
-  }
-
-  .shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .shimmer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: var(--gradient-shimmer);
-    animation: shimmer 2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% {
-      left: -100%;
-    }
-    100% {
-      left: 100%;
-    }
-  }
-
-  /* Page transitions */
-  .page-enter {
-    animation: fadeInSlideUp 0.4s ease-out;
-  }
-
-  .page-exit {
-    animation: fadeOutSlideDown 0.3s ease-in;
-  }
-
-  /* Chat Animations */
-  .chat-message-enter {
-    animation: slideInUp 0.3s ease-out;
-  }
-
-  .suggestion-card-hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-elevated);
-  }
-
-  @keyframes slideInUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes fadeInSlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes fadeOutSlideDown {
-    from {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-.typing-indicator {
-    animation: pulse 1.5s infinite;
+    font-family: 'Poppins', sans-serif;
   }
 }
