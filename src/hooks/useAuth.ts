@@ -40,7 +40,6 @@ export const useAuthState = () => {
 
   useEffect(() => {
     let mounted = true;
-    let initialLoadComplete = false;
 
     const fetchProfile = async (userId: string) => {
       try {
@@ -52,90 +51,77 @@ export const useAuthState = () => {
         
         if (error) {
           console.error('Error fetching profile:', error);
-          return null;
+          return;
         }
         
-        return profileData ? {
-          ...profileData,
-          user_type: profileData.user_type as 'student' | 'faculty'
-        } : null;
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-        return null;
-      }
-    };
-
-    const handleAuthState = async (event: string, session: Session | null) => {
-      if (!mounted) return;
-
-      console.log('Auth state changed:', event, !!session);
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      try {
-        if (session?.user) {
-          const profileData = await fetchProfile(session.user.id);
-          if (mounted) {
-            setProfile(profileData);
-          }
-        } else {
-          if (mounted) {
+        if (mounted) {
+          if (profileData) {
+            setProfile({
+              ...profileData,
+              user_type: profileData.user_type as 'student' | 'faculty'
+            });
+          } else {
+            // No profile found - user might need to create one
             setProfile(null);
           }
         }
       } catch (error) {
-        console.error('Error handling auth state:', error);
+        console.error('Error fetching profile:', error);
         if (mounted) {
           setProfile(null);
         }
       }
-      
-      if (mounted && (!initialLoadComplete || event === 'SIGNED_OUT' || event === 'SIGNED_IN')) {
-        setLoading(false);
-        initialLoadComplete = true;
-      }
     };
 
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthState);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
 
-    // Get initial session with timeout fallback
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+        
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    );
+
+    // Check for existing session only once
     const getInitialSession = async () => {
       try {
-        // Add a timeout to prevent indefinite loading
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session fetch timeout')), 5000)
-        );
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
 
-        const sessionPromise = supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
         
-        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
         
-        await handleAuthState('INITIAL_SESSION', session);
+        if (mounted) {
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Error getting initial session:', error);
         if (mounted) {
           setLoading(false);
-          initialLoadComplete = true;
         }
       }
     };
 
     getInitialSession();
 
-    // Fallback timeout to ensure loading never persists indefinitely
-    const fallbackTimeout = setTimeout(() => {
-      if (mounted && !initialLoadComplete) {
-        console.warn('Auth loading timeout - forcing loading to false');
-        setLoading(false);
-        initialLoadComplete = true;
-      }
-    }, 8000);
-
     return () => {
       mounted = false;
-      clearTimeout(fallbackTimeout);
       subscription.unsubscribe();
     };
   }, []);
