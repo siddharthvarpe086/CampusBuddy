@@ -74,9 +74,7 @@ serve(async (req) => {
     }
 
     // Prepare the prompt with college data context
-    const prompt = `You are a helpful college information assistant with real-time access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and other college-related information.
-
-IMPORTANT: You do NOT store or remember this information. Instead, you search through the provided data in real-time for each question to find the most relevant and up-to-date answers.
+    const prompt = `You are a helpful college information assistant with access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and other college-related information.
 
 Your task is to intelligently search and analyze the provided college data to answer student questions accurately:
 
@@ -89,11 +87,10 @@ Your task is to intelligently search and analyze the provided college data to an
 7. ADMIT LIMITATIONS: If you cannot find the requested information in the current data, politely say so and suggest alternatives
 8. SEARCH VARIATIONS: For faculty queries, search by name variations, department, subjects taught, or related keywords
 9. SYNTHESIZE INFORMATION: Provide comprehensive answers by combining related information from multiple sources
+10. NEVER start your response with phrases like "Based on the provided data" - just answer directly and naturally
 
 College Data and Documents:
 ${context}
-
-Remember: You are searching through this data in REAL-TIME for each question. You don't remember previous conversations or data - you search fresh each time to ensure accuracy and up-to-date responses.
 
 Student Question: ${message}`;
 
