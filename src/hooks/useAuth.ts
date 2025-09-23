@@ -43,20 +43,33 @@ export const useAuthState = () => {
 
     const fetchProfile = async (userId: string) => {
       try {
-        const { data: profileData } = await supabase
+        const { data: profileData, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('user_id', userId)
-          .single();
+          .maybeSingle();
         
-        if (mounted && profileData) {
-          setProfile({
-            ...profileData,
-            user_type: profileData.user_type as 'student' | 'faculty'
-          });
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+        
+        if (mounted) {
+          if (profileData) {
+            setProfile({
+              ...profileData,
+              user_type: profileData.user_type as 'student' | 'faculty'
+            });
+          } else {
+            // No profile found - user might need to create one
+            setProfile(null);
+          }
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
+        if (mounted) {
+          setProfile(null);
+        }
       }
     };
 
@@ -73,7 +86,10 @@ export const useAuthState = () => {
         } else {
           setProfile(null);
         }
-        setLoading(false);
+        
+        if (mounted) {
+          setLoading(false);
+        }
       }
     );
 
@@ -90,7 +106,10 @@ export const useAuthState = () => {
         if (session?.user) {
           await fetchProfile(session.user.id);
         }
-        setLoading(false);
+        
+        if (mounted) {
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Error getting initial session:', error);
         if (mounted) {
