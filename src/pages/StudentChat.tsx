@@ -237,10 +237,23 @@ export default function StudentChat() {
   return (
     <div className="min-h-screen bg-background flex flex-col page-enter">
       <NavigationBar 
-        title="Campus Chat Bot" 
+        title="Campus Buddy" 
         showBack 
         onBack={() => navigate('/')}
       />
+      
+      {/* SyncSpot Navigation Button */}
+      <div className="bg-card border-b border-border px-4 py-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/syncspot')}
+          className="w-full justify-center gap-2 hover:bg-primary/10"
+        >
+          <MessageCircle className="h-4 w-4" />
+          Visit SyncSpot Community
+        </Button>
+      </div>
       
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
         {/* Chat Header */}

@@ -164,18 +164,23 @@ export default function SyncSpot() {
       <NavigationBar 
         title="SyncSpot" 
         showBack 
-        onBack={() => navigate('/')}
+        onBack={() => navigate(-1)}
       />
       
       <div className="flex-1 max-w-4xl mx-auto w-full p-6">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <img src={syncspotLogo} alt="SyncSpot" className="w-12 h-12" />
-            <h1 className="text-3xl font-bold text-foreground font-poppins">
-              SyncSpot
-            </h1>
-          </div>
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-blue-500/20 to-cyan-500/20 rounded-full blur-xl"></div>
+                <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 p-1 shadow-lg">
+                  <img src={syncspotLogo} alt="SyncSpot" className="w-full h-full rounded-full object-cover" />
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold text-foreground font-poppins">
+                SyncSpot
+              </h1>
+            </div>
           <p className="text-lg text-muted-foreground">
             Community Q&A - Students helping students
           </p>
