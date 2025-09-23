@@ -193,6 +193,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_user_display_name: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
       setup_faculty_account: {
         Args: Record<PropertyKey, never>
         Returns: undefined
