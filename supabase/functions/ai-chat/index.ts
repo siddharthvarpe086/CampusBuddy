@@ -14,6 +14,10 @@ interface CollegeData {
   content: string;
   tags: string[] | null;
   created_at: string;
+  file_url?: string;
+  file_name?: string;
+  file_type?: string;
+  parsed_content?: string;
 }
 
 serve(async (req) => {
@@ -34,7 +38,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all college data to provide comprehensive context
+    // Fetch all college data including parsed document content
     const { data: collegeData, error: dbError } = await supabase
       .from('college_data')
       .select('*')
@@ -45,10 +49,22 @@ serve(async (req) => {
       throw new Error('Failed to fetch college data');
     }
 
-    // Prepare context from all college data
+    // Prepare context from all college data including documents
     const context = collegeData?.map((item: CollegeData) => {
       const tags = item.tags ? item.tags.join(', ') : '';
-      return `Title: ${item.title}\nCategory: ${item.category}\nContent: ${item.content}\nTags: ${tags}\n---`;
+      let contextStr = `Title: ${item.title}\nCategory: ${item.category}\nContent: ${item.content}\nTags: ${tags}`;
+      
+      // Add parsed document content if available
+      if (item.parsed_content) {
+        contextStr += `\nDocument Content: ${item.parsed_content}`;
+      }
+      
+      // Add file information if available
+      if (item.file_name) {
+        contextStr += `\nAttached File: ${item.file_name} (${item.file_type || 'unknown type'})`;
+      }
+      
+      return contextStr + '\n---';
     }).join('\n\n') || '';
 
     // Get Gemini API key
@@ -58,23 +74,26 @@ serve(async (req) => {
     }
 
     // Prepare the prompt with college data context
-    const prompt = `You are a helpful college information assistant. You have access to comprehensive college data including faculty information, contact details, departments, events, timings, and other college-related information.
+    const prompt = `You are a helpful college information assistant with real-time access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and other college-related information.
 
-Your task is to analyze the provided college data and answer student questions accurately and helpfully. Here's what you should do:
+IMPORTANT: You do NOT store or remember this information. Instead, you search through the provided data in real-time for each question to find the most relevant and up-to-date answers.
 
-1. Always search through ALL the provided college data to find relevant information
-2. If you find specific information requested, provide it directly and clearly
-3. If you find partial matches, use your intelligence to provide the most relevant information
-4. If someone asks for contact info, provide phone numbers, emails, departments, or any available contact details
-5. Be conversational and helpful, not robotic
-6. If you truly cannot find the requested information in the college data, politely say so and suggest alternatives
-7. For faculty queries, search by name variations, department, or subject they teach
-8. Provide comprehensive answers when multiple details are available
+Your task is to intelligently search and analyze the provided college data to answer student questions accurately:
 
-College Data:
+1. SEARCH COMPREHENSIVELY: Look through ALL provided college data, including document content, to find relevant information
+2. PRIORITIZE ACCURACY: If you find specific information requested, provide it directly and clearly
+3. USE INTELLIGENCE: For partial matches, use your reasoning to provide the most relevant information
+4. PROVIDE COMPLETE ANSWERS: Include contact info, phone numbers, emails, departments, and any available details when relevant
+5. BE CONVERSATIONAL: Sound helpful and natural, not robotic
+6. HANDLE DOCUMENTS: When referencing uploaded documents (PDFs, Word docs, images, etc.), mention that the information comes from official college documents
+7. ADMIT LIMITATIONS: If you cannot find the requested information in the current data, politely say so and suggest alternatives
+8. SEARCH VARIATIONS: For faculty queries, search by name variations, department, subjects taught, or related keywords
+9. SYNTHESIZE INFORMATION: Provide comprehensive answers by combining related information from multiple sources
+
+College Data and Documents:
 ${context}
 
-Remember: Use ALL the information above to provide intelligent, contextual responses. Don't just return search results - analyze and synthesize the information to give helpful answers.
+Remember: You are searching through this data in REAL-TIME for each question. You don't remember previous conversations or data - you search fresh each time to ensure accuracy and up-to-date responses.
 
 Student Question: ${message}`;
 

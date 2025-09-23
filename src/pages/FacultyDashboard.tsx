@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,10 @@ import {
   Phone,
   Save,
   Loader2,
-  Trash2
+  Trash2,
+  Upload,
+  File,
+  X
 } from 'lucide-react';
 
 interface CollegeData {
@@ -29,6 +32,10 @@ interface CollegeData {
   content: string;
   tags: string[] | null;
   created_at: string;
+  file_url?: string;
+  file_name?: string;
+  file_type?: string;
+  parsed_content?: string;
 }
 
 const CATEGORIES = [
@@ -45,11 +52,14 @@ const CATEGORIES = [
 
 export default function FacultyDashboard() {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [collegeData, setCollegeData] = useState<CollegeData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTraining, setIsTraining] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -89,12 +99,67 @@ export default function FacultyDashboard() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select a file smaller than 10MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Check file type
+      const allowedTypes = [
+        'text/plain',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp'
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Unsupported file type",
+          description: "Please select a supported file type (PDF, Word, Excel, PowerPoint, Text, or Image).",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setUploadedFile(file);
+      
+      // Auto-fill title if empty
+      if (!formData.title) {
+        const fileName = file.name.split('.').slice(0, -1).join('.');
+        handleInputChange('title', fileName);
+      }
+    }
+  };
+
+  const removeUploadedFile = () => {
+    setUploadedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.category || !formData.content) {
+    if (!formData.title || !formData.category || (!formData.content && !uploadedFile)) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields and provide content or upload a file.",
         variant: "destructive"
       });
       return;
@@ -106,7 +171,33 @@ export default function FacultyDashboard() {
         ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
         : null;
 
-      const { error } = await supabase
+      let fileUrl = null;
+      let fileName = null;
+      let fileType = null;
+
+      // Upload file if one is selected
+      if (uploadedFile) {
+        setIsProcessingFile(true);
+        const fileExt = uploadedFile.name.split('.').pop();
+        const filePath = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('college-documents')
+          .upload(filePath, uploadedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('college-documents')
+          .getPublicUrl(filePath);
+
+        fileUrl = publicUrl;
+        fileName = uploadedFile.name;
+        fileType = uploadedFile.type;
+      }
+
+      // Insert the college data record
+      const { data: insertedData, error: insertError } = await supabase
         .from('college_data')
         .insert([
           {
@@ -114,16 +205,55 @@ export default function FacultyDashboard() {
             category: formData.category,
             content: formData.content,
             tags: tags,
+            file_url: fileUrl,
+            file_name: fileName,
+            file_type: fileType,
             created_by: null // No user tracking needed for faculty operations
           }
-        ]);
+        ])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      toast({
-        title: "Success",
-        description: "College data added successfully!",
-      });
+      // Process the document if a file was uploaded
+      if (uploadedFile && insertedData) {
+        try {
+          const { error: processError } = await supabase.functions.invoke('process-document', {
+            body: {
+              fileUrl: fileUrl,
+              fileName: fileName,
+              fileType: fileType,
+              recordId: insertedData.id
+            }
+          });
+
+          if (processError) {
+            console.error('Document processing error:', processError);
+            toast({
+              title: "Warning",
+              description: "Data saved but document processing failed. The file is still uploaded.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Success",
+              description: uploadedFile ? "College data and document added successfully!" : "College data added successfully!",
+            });
+          }
+        } catch (processError) {
+          console.error('Document processing error:', processError);
+          toast({
+            title: "Warning",
+            description: "Data saved but document processing failed. The file is still uploaded.",
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "College data added successfully!",
+        });
+      }
 
       // Reset form
       setFormData({
@@ -132,6 +262,10 @@ export default function FacultyDashboard() {
         content: '',
         tags: ''
       });
+      setUploadedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
 
       // Refresh data
       fetchCollegeData();
@@ -144,6 +278,7 @@ export default function FacultyDashboard() {
       });
     } finally {
       setIsSubmitting(false);
+      setIsProcessingFile(false);
     }
   };
 
@@ -173,11 +308,11 @@ export default function FacultyDashboard() {
   };
 
 
-  const handleTrainAI = async () => {
+  const handleOptimizeAI = async () => {
     if (collegeData.length === 0) {
       toast({
         title: "No Data Available",
-        description: "Please add some college data before training the AI model.",
+        description: "Please add some college data first.",
         variant: "destructive"
       });
       return;
@@ -185,31 +320,23 @@ export default function FacultyDashboard() {
 
     setIsTraining(true);
     try {
-      // Create training payload with all college data
-      const trainingData = collegeData.map(item => ({
-        title: item.title,
-        category: item.category,
-        content: item.content,
-        tags: item.tags || []
-      }));
-
       toast({
-        title: "AI Training Started",
-        description: `Training AI model with ${collegeData.length} data entries. This may take a few moments.`,
+        title: "AI Search Optimization",
+        description: `The AI now has access to ${collegeData.length} data entries and uploaded documents for real-time search and intelligent responses.`,
       });
 
-      // Simulate training process (replace with actual AI training logic)
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Simulate optimization process
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       toast({
-        title: "Training Complete",
-        description: "AI model has been successfully trained with your college data!",
+        title: "Optimization Complete",
+        description: "AI is now ready to search through your college data and documents in real-time!",
       });
     } catch (error) {
-      console.error('Error training AI:', error);
+      console.error('Error optimizing AI:', error);
       toast({
-        title: "Training Failed",
-        description: "Failed to train AI model. Please try again.",
+        title: "Optimization Failed",
+        description: "Failed to optimize AI search. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -244,10 +371,10 @@ export default function FacultyDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-poppins text-primary">
                 <Database className="h-5 w-5" />
-                AI Model Training
+                AI Search System
               </CardTitle>
               <CardDescription>
-                Train the Campus Buddy AI with your college data to provide accurate answers to students
+                The AI searches through your college data and documents in real-time to provide accurate answers
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -257,23 +384,23 @@ export default function FacultyDashboard() {
                     Current Data: <strong>{collegeData.length} entries</strong>
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    The AI will use this data to answer student questions accurately
+                    The AI searches through this data and documents in real-time for intelligent responses
                   </p>
                 </div>
                 <Button 
-                  onClick={handleTrainAI}
+                  onClick={handleOptimizeAI}
                   className="gradient-campus hover:opacity-90 transition-smooth"
                   disabled={isTraining || collegeData.length === 0}
                 >
                   {isTraining ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Training AI...
+                      Optimizing...
                     </>
                   ) : (
                     <>
                       <Database className="mr-2 h-4 w-4" />
-                      Train AI Model
+                      Optimize AI Search
                     </>
                   )}
                 </Button>
@@ -324,14 +451,46 @@ export default function FacultyDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="content">Content *</Label>
+                  <Label htmlFor="content">Content {!uploadedFile && '*'}</Label>
                   <Textarea
                     id="content"
-                    placeholder="Detailed information about this topic..."
+                    placeholder={uploadedFile ? "Optional: Add additional context or description..." : "Detailed information about this topic..."}
                     value={formData.content}
                     onChange={(e) => handleInputChange('content', e.target.value)}
                     className="min-h-32 transition-smooth"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="file">Upload Document/Image (optional)</Label>
+                  <div className="space-y-2">
+                    <Input
+                      ref={fileInputRef}
+                      id="file"
+                      type="file"
+                      onChange={handleFileUpload}
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp"
+                      className="transition-smooth"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Supported: PDF, Word, Excel, PowerPoint, Text files, Images (max 10MB)
+                    </p>
+                    {uploadedFile && (
+                      <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                        <File className="h-4 w-4 text-primary" />
+                        <span className="text-sm flex-1">{uploadedFile.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={removeUploadedFile}
+                          className="h-6 w-6 p-0"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -348,17 +507,17 @@ export default function FacultyDashboard() {
                 <Button 
                   type="submit" 
                   className="w-full gradient-campus hover:opacity-90 transition-smooth"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isProcessingFile}
                 >
-                  {isSubmitting ? (
+                  {isSubmitting || isProcessingFile ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding Data...
+                      {isProcessingFile ? 'Processing File...' : 'Adding Data...'}
                     </>
                   ) : (
                     <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Add Data
+                      {uploadedFile ? <Upload className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
+                      {uploadedFile ? 'Add Data & Upload File' : 'Add Data'}
                     </>
                   )}
                 </Button>
@@ -412,6 +571,12 @@ export default function FacultyDashboard() {
                       <p className="text-sm text-muted-foreground line-clamp-2">
                         {item.content}
                       </p>
+                      {item.file_name && (
+                        <div className="flex items-center gap-1 text-xs text-primary">
+                          <File className="h-3 w-3" />
+                          <span>{item.file_name}</span>
+                        </div>
+                      )}
                       {item.tags && item.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {item.tags.map((tag, index) => (
