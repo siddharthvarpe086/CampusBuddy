@@ -240,7 +240,7 @@ export default function StudentChat() {
               </div>
               <Card className="bg-card text-card-foreground border-border p-3 shadow-chat">
                 <p className="text-sm text-muted-foreground font-poppins">
-                  Campus Bot is thinking...
+                  Campus Buddy is thinking...
                 </p>
               </Card>
             </div>
