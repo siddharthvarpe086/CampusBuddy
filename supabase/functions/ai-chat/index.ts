@@ -87,12 +87,12 @@ serve(async (req) => {
 
     const fullContext = [context, syncSpotContext].filter(Boolean).join('\n\n');
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY not configured');
     }
 
-    const systemPrompt = `You are a helpful college information assistant with real-time access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and community-generated answers from students.
+    const prompt = `You are a helpful college information assistant with real-time access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and community-generated answers from students.
 
 IMPORTANT: You do NOT store or remember this information. Instead, you search through the provided data in real-time for each question to find the most relevant and up-to-date answers.
 
@@ -112,63 +112,51 @@ Your task is to intelligently search and analyze the provided college data to an
 College Data, Documents, and Community Answers:
 ${fullContext}
 
-Remember: You are searching through this data in REAL-TIME for each question. You don't remember previous conversations or data - you search fresh each time to ensure accuracy and up-to-date responses.`;
+Remember: You are searching through this data in REAL-TIME for each question. You don't remember previous conversations or data - you search fresh each time to ensure accuracy and up-to-date responses.
 
-    console.log('Calling Lovable AI Gateway...');
+Student Question: ${message}`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 1024,
-      }),
-    });
+    console.log('Calling Gemini API...');
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          }
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI Gateway error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ 
-          error: 'Rate limit exceeded. Please try again in a moment.',
-          response: "I'm receiving too many requests right now. Please wait a moment and try again."
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ 
-          error: 'AI service requires payment. Please contact support.',
-          response: "The AI service is temporarily unavailable. Please contact the college administration for assistance."
-        }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      throw new Error(`AI Gateway error: ${response.status}`);
+      console.error('Gemini API error:', response.status, errorText);
+      throw new Error(`Gemini API error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('AI response received');
+    console.log('Gemini response received');
     
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Invalid AI response structure:', data);
-      throw new Error('Invalid response from AI');
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('Invalid Gemini response structure:', data);
+      throw new Error('Invalid response from Gemini API');
     }
 
-    const aiResponse = data.choices[0].message.content;
+    const aiResponse = data.candidates[0].content.parts[0].text;
 
     if (aiResponse.startsWith('NO_INFO_AVAILABLE:')) {
       const question = aiResponse.replace('NO_INFO_AVAILABLE:', '').trim();
