@@ -87,79 +87,10 @@ serve(async (req) => {
 
     const fullContext = [context, syncSpotContext].filter(Boolean).join('\n\n');
 
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-    if (!GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY not configured');
-    }
-
-    const systemPrompt = `You are a friendly campus AI assistant helping students with college information. You have access to real-time data about faculty, departments, events, facilities, and student Q&A.
-
-HOW TO ANSWER:
-1. Find the relevant information from the data below
-2. Understand the context and what the student really wants to know
-3. Explain it naturally like you're talking to a friend - don't just repeat database text
-4. Be brief (1-3 sentences) but complete
-5. If information is missing, say: "NO_INFO_AVAILABLE: [question]"
-
-TONE: Casual, friendly, helpful - like a senior student helping a junior
-
-AVAILABLE DATA:
-${fullContext}
-
-QUESTION: ${message}
-
-Remember: Extract facts, understand context, explain naturally. Don't copy-paste data.`;
-
-    console.log('Calling Gemini API...');
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: systemPrompt }]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          }
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API error:', response.status, errorText);
-      throw new Error(`Gemini API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('Gemini response received:', JSON.stringify(data));
-    
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      console.error('Invalid Gemini response structure:', data);
-      throw new Error('Invalid response from Gemini API');
-    }
-
-    const aiResponse = data.candidates[0].content.parts[0].text;
-
-    if (aiResponse.startsWith('NO_INFO_AVAILABLE:')) {
-      const question = aiResponse.replace('NO_INFO_AVAILABLE:', '').trim();
-      return new Response(JSON.stringify({ noAnswer: true, question: question || message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    return new Response(JSON.stringify({ response: aiResponse }), {
+    // AI integration removed - awaiting new configuration
+    return new Response(JSON.stringify({ 
+      response: "AI chat is currently being reconfigured. Please check back soon!"
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
