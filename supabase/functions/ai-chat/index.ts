@@ -87,76 +87,85 @@ serve(async (req) => {
 
     const fullContext = [context, syncSpotContext].filter(Boolean).join('\n\n');
 
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-    if (!GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const prompt = `You are a helpful college information assistant with real-time access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and community-generated answers from students.
+    const systemPrompt = `You are a helpful college information assistant with real-time access to comprehensive college data including faculty information, contact details, departments, events, timings, uploaded documents, and community-generated answers from students.
 
 IMPORTANT: You do NOT store or remember this information. Instead, you search through the provided data in real-time for each question to find the most relevant and up-to-date answers.
 
-Your task is to intelligently search and analyze the provided college data to answer student questions accurately:
+Your Capabilities:
+- Search through college documents, faculty data, and events in real-time
+- Access community-generated answers from SyncSpot
+- Provide accurate, helpful information about college facilities, timing, contacts, and more
 
-1. SEARCH COMPREHENSIVELY: Look through ALL provided college data, including document content and community answers, to find relevant information
-2. PRIORITIZE ACCURACY: If you find specific information requested, provide it directly and clearly
-3. USE INTELLIGENCE: For partial matches, use your reasoning to provide the most relevant information
-4. PROVIDE COMPLETE ANSWERS: Include contact info, phone numbers, emails, departments, and any available details when relevant
-5. BE CONVERSATIONAL: Sound helpful and natural, not robotic
-6. HANDLE DOCUMENTS: When referencing uploaded documents (PDFs, Word docs, images, etc.), mention that the information comes from official college documents
-7. USE COMMUNITY KNOWLEDGE: When referencing community answers, acknowledge that the information comes from student community
-8. ADMIT LIMITATIONS: If you cannot find the requested information in the current data, respond with exactly: "NO_INFO_AVAILABLE: [original question]"
-9. SEARCH VARIATIONS: For faculty queries, search by name variations, department, subjects taught, or related keywords
-10. SYNTHESIZE INFORMATION: Provide comprehensive answers by combining related information from multiple sources
+CRITICAL RULES:
+1. If you cannot find information in the provided data, respond with: "NO_INFO_AVAILABLE: [restate the question]"
+2. Do NOT make up information - only use what's in the provided context
+3. Be friendly, helpful, and concise in your responses
 
 College Data, Documents, and Community Answers:
 ${fullContext}
 
-Remember: You are searching through this data in REAL-TIME for each question. You don't remember previous conversations or data - you search fresh each time to ensure accuracy and up-to-date responses.
+Remember: You are searching through this data in REAL-TIME for each question. You don't remember previous conversations or data - you search fresh each time to ensure accuracy and up-to-date responses.`;
 
-Student Question: ${message}`;
+    console.log('Calling Lovable AI Gateway...');
 
-    console.log('Calling Gemini API...');
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: prompt }]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          }
-        }),
-      }
-    );
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 1024,
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gemini API error:', response.status, errorText);
-      throw new Error(`Gemini API error: ${response.status}`);
+      console.error('AI Gateway error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: 'Rate limit exceeded. Please try again in a moment.',
+          response: "I'm receiving too many requests right now. Please wait a moment and try again."
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ 
+          error: 'AI service requires payment. Please contact support.',
+          response: "The AI service is temporarily unavailable. Please contact the college administration for assistance."
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      throw new Error(`AI Gateway error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Gemini response received');
+    console.log('AI response received');
     
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      console.error('Invalid Gemini response structure:', data);
-      throw new Error('Invalid response from Gemini API');
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid AI response structure:', data);
+      throw new Error('Invalid response from AI');
     }
 
-    const aiResponse = data.candidates[0].content.parts[0].text;
+    const aiResponse = data.choices[0].message.content;
 
     if (aiResponse.startsWith('NO_INFO_AVAILABLE:')) {
       const question = aiResponse.replace('NO_INFO_AVAILABLE:', '').trim();
