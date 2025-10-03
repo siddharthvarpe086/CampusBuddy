@@ -27,14 +27,15 @@ export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) =>
             {message}
           </p>
         ) : (
-          <div className="text-sm font-poppins leading-relaxed prose prose-sm max-w-none">
+          <div className="text-sm font-poppins leading-relaxed prose prose-sm max-w-none prose-strong:font-bold prose-strong:text-inherit">
             <ReactMarkdown
               components={{
                 strong: ({ children }) => <strong className="font-bold text-inherit">{children}</strong>,
                 p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                em: ({ children }) => <span>{children}</span>,
               }}
             >
-              {message}
+              {message.replace(/\*(?!\*)/g, '')}
             </ReactMarkdown>
           </div>
         )}

@@ -7,10 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// AI integration removed - awaiting new configuration
-
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -22,26 +19,154 @@ serve(async (req) => {
       throw new Error('Missing required parameters');
     }
 
-    console.log('Document upload recorded:', { fileName, fileType, recordId });
+    console.log('Processing document:', { fileName, fileType, recordId });
 
-    // AI processing removed - awaiting new configuration
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'Document uploaded successfully. AI processing will be configured soon.',
-      parsedLength: 0,
-      aiProcessed: false
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    const mistralApiKey = Deno.env.get('MISTRAL_API_KEY');
+    
+    if (!mistralApiKey) {
+      console.log('Mistral API key not configured, skipping OCR processing');
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'Document uploaded successfully. OCR processing not configured.',
+        parsedLength: 0,
+        aiProcessed: false
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Only process image and PDF files
+    const processableTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
+    
+    if (!processableTypes.includes(fileType)) {
+      console.log('File type not processable for OCR:', fileType);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'Document uploaded successfully. File type does not require OCR.',
+        parsedLength: 0,
+        aiProcessed: false
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    try {
+      console.log('Fetching file from URL:', fileUrl);
+      const fileResponse = await fetch(fileUrl);
+      
+      if (!fileResponse.ok) {
+        throw new Error('Failed to fetch file');
+      }
+
+      const fileBlob = await fileResponse.blob();
+      const base64Data = await blobToBase64(fileBlob);
+
+      console.log('Calling Mistral Pixtral for OCR...');
+      
+      // Use Mistral Pixtral for OCR and document understanding
+      const mistralResponse = await fetch(
+        'https://api.mistral.ai/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${mistralApiKey}`
+          },
+          body: JSON.stringify({
+            model: 'pixtral-12b-2409',
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Extract and organize all text from this document. Preserve the structure including tables, lists, headings, and important formatting. If this is a timetable, event schedule, or structured document, maintain the layout clearly. Provide the extracted text in a well-organized format.'
+                  },
+                  {
+                    type: 'image_url',
+                    image_url: {
+                      url: base64Data
+                    }
+                  }
+                ]
+              }
+            ],
+            max_tokens: 2000
+          })
+        }
+      );
+
+      if (!mistralResponse.ok) {
+        const errorText = await mistralResponse.text();
+        console.error('Mistral OCR error:', mistralResponse.status, errorText);
+        throw new Error('Mistral OCR processing failed');
+      }
+
+      const mistralData = await mistralResponse.json();
+      const extractedText = mistralData.choices?.[0]?.message?.content || '';
+
+      console.log('OCR extraction completed, length:', extractedText.length);
+
+      // Update the database with parsed content
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      const { error: updateError } = await supabase
+        .from('college_data')
+        .update({ parsed_content: extractedText })
+        .eq('id', recordId);
+
+      if (updateError) {
+        console.error('Failed to update parsed content:', updateError);
+        throw new Error('Failed to save OCR results');
+      }
+
+      console.log('Successfully saved OCR results to database');
+
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'Document processed successfully with OCR.',
+        parsedLength: extractedText.length,
+        aiProcessed: true
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
+    } catch (ocrError) {
+      console.error('OCR processing error:', ocrError);
+      const errorMessage = ocrError instanceof Error ? ocrError.message : 'OCR processing failed';
+      
+      return new Response(JSON.stringify({ 
+        success: true,
+        message: 'Document uploaded but OCR processing failed.',
+        error: errorMessage,
+        aiProcessed: false
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
   } catch (error) {
     console.error('Error in process-document function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
     return new Response(JSON.stringify({ 
       success: false,
-      error: error.message 
+      error: errorMessage 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
+
+// Helper function to convert blob to base64 data URL
+async function blobToBase64(blob: Blob): Promise<string> {
+  const arrayBuffer = await blob.arrayBuffer();
+  const base64 = btoa(
+    new Uint8Array(arrayBuffer)
+      .reduce((data, byte) => data + String.fromCharCode(byte), '')
+  );
+  return `data:${blob.type};base64,${base64}`;
+}
