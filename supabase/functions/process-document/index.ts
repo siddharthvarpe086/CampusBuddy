@@ -35,6 +35,11 @@ serve(async (req) => {
       });
     }
 
+    // Initialize Supabase client at the start
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     // Only process image and PDF files
     const processableTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
     
@@ -51,15 +56,28 @@ serve(async (req) => {
     }
 
     try {
-      console.log('Fetching file from URL:', fileUrl);
-      const fileResponse = await fetch(fileUrl);
+      console.log('Fetching file from storage:', fileUrl);
       
-      if (!fileResponse.ok) {
-        throw new Error('Failed to fetch file');
+      // Extract the path from the full URL
+      const urlParts = fileUrl.split('/storage/v1/object/public/college-documents/');
+      if (urlParts.length !== 2) {
+        throw new Error('Invalid file URL format');
+      }
+      const filePath = urlParts[1];
+      
+      // Use Supabase client to download the file with proper authentication
+      const { data: fileData, error: downloadError } = await supabase
+        .storage
+        .from('college-documents')
+        .download(filePath);
+      
+      if (downloadError || !fileData) {
+        console.error('Download error:', downloadError);
+        throw new Error('Failed to download file from storage');
       }
 
-      const fileBlob = await fileResponse.blob();
-      const base64Data = await blobToBase64(fileBlob);
+      console.log('File downloaded successfully, size:', fileData.size);
+      const base64Data = await blobToBase64(fileData);
 
       console.log('Calling Mistral Pixtral for OCR...');
       
@@ -107,11 +125,7 @@ serve(async (req) => {
 
       console.log('OCR extraction completed, length:', extractedText.length);
 
-      // Update the database with parsed content
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
+      // Update the database with parsed content (reuse supabase client)
       const { error: updateError } = await supabase
         .from('college_data')
         .update({ parsed_content: extractedText })

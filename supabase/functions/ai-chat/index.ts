@@ -96,141 +96,175 @@ serve(async (req) => {
 
     const fullContext = [context, syncSpotContext].filter(Boolean).join('\n\n');
 
-    // System prompt for Gemini
-    const systemPrompt = `You are CampusBuddy, a professional campus assistant for college students. Your role is to help students by answering their questions based ONLY on the college database provided.
+    // First, try Mistral with document context for document-based questions
+    console.log('Attempting Mistral AI with document context...');
+    
+    const mistralSystemPrompt = `You are CampusBuddy, a professional campus assistant. Answer questions based on the college documents and data provided.
 
-CRITICAL RULES:
-1. ONLY answer questions related to college, academics, campus events, facilities, and college-related activities
-2. If a question is NOT related to college, politely refuse and say: "I can only help with college-related questions. Please ask me about academics, campus events, facilities, or college activities."
-3. Do NOT redirect non-college questions to SyncSpot
-4. If a question IS college-related but you cannot find the answer in the database, respond with: "I don't have this information in my database. This question will be posted to SyncSpot where the community can help answer it."
-5. Use simple, clear, professional English
-6. Format important information in **bold** (use double asterisks, not single asterisks)
-7. Keep answers concise and specific (2-4 sentences)
-8. NEVER use single asterisks (*) in your output - always use double asterisks (**) for bold formatting
-9. Answer in a friendly, helpful tone like a senior helping a junior
+RULES:
+1. Answer ONLY college-related questions (academics, events, faculty, campus, facilities, timetables, documents)
+2. Use the document content and database to provide accurate answers
+3. Format important information in **bold** (double asterisks only)
+4. Keep answers clear, concise, and professional (2-4 sentences)
+5. NEVER use single asterisks (*) in your output
+6. If you cannot find the answer in the provided data, respond EXACTLY with: "SYNCSPOT_REDIRECT"
 
-Database Content:
-${fullContext || 'No college data available yet.'}`;
-
-    console.log('Calling Gemini API with google/gemini-2.0-flash-exp model...');
+College Database:
+${fullContext || 'No data available yet.'}`;
 
     try {
-      // Primary: Try Gemini first
-      const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
+      // Primary: Try Mistral first for document-based answers
+      const mistralResponse = await fetch(
+        'https://api.mistral.ai/v1/chat/completions',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${mistralApiKey}`
+          },
           body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `${systemPrompt}\n\nStudent Question: ${message}`
-              }]
-            }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 500,
-            }
+            model: 'mistral-large-latest',
+            messages: [
+              { role: 'system', content: mistralSystemPrompt },
+              { role: 'user', content: message }
+            ],
+            temperature: 0.7,
+            max_tokens: 500
           })
         }
       );
 
-      if (!geminiResponse.ok) {
-        const errorText = await geminiResponse.text();
-        console.error('Gemini API error:', geminiResponse.status, errorText);
-        throw new Error('Gemini API failed');
+      if (!mistralResponse.ok) {
+        const errorText = await mistralResponse.text();
+        console.error('Mistral API error:', mistralResponse.status, errorText);
+        throw new Error('Mistral API failed');
       }
 
-      const geminiData = await geminiResponse.json();
-      console.log('Gemini response received:', geminiData);
+      const mistralData = await mistralResponse.json();
+      console.log('Mistral response received');
+      
+      let responseText = mistralData.choices?.[0]?.message?.content || 'No response generated';
+      
+      // Remove single asterisks
+      responseText = responseText.replace(/(?<!\*)\*(?!\*)/g, '');
 
-      if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
-        let responseText = geminiData.candidates[0].content.parts[0].text;
-        
-        // Remove any remaining single asterisks and fix formatting
-        responseText = responseText.replace(/(?<!\*)\*(?!\*)/g, '');
-        
-        // Check if Gemini indicates it doesn't have the answer
-        const noAnswerPhrases = [
-          "don't have this information",
-          "cannot find",
-          "not available in",
-          "no information about",
-          "syncspot"
-        ];
-        
-        const isCollegeRelated = !responseText.toLowerCase().includes("only help with college-related");
-        const hasNoAnswer = noAnswerPhrases.some(phrase => 
-          responseText.toLowerCase().includes(phrase.toLowerCase())
-        );
-
-        if (isCollegeRelated && hasNoAnswer) {
-          // College-related question but no answer found - redirect to SyncSpot
-          return new Response(JSON.stringify({ 
-            response: "I don't have information about this in my database. Let me redirect this question to **SyncSpot** where the community can help answer it.",
-            redirect: 'syncspot'
-          }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+      // Check if Mistral couldn't find the answer
+      if (responseText.includes('SYNCSPOT_REDIRECT')) {
+        // Post question to SyncSpot automatically
+        const authHeader = req.headers.get('authorization');
+        if (authHeader) {
+          try {
+            const token = authHeader.replace('Bearer ', '');
+            const supabaseClient = createClient(supabaseUrl, supabaseKey, {
+              global: { headers: { Authorization: authHeader } }
+            });
+            
+            const { data: userData } = await supabaseClient.auth.getUser(token);
+            
+            if (userData?.user) {
+              await supabaseClient
+                .from('syncspot_questions')
+                .insert({
+                  question: message,
+                  user_id: userData.user.id
+                });
+              
+              console.log('Question posted to SyncSpot');
+            }
+          } catch (syncSpotError) {
+            console.error('Error posting to SyncSpot:', syncSpotError);
+          }
         }
-
+        
         return new Response(JSON.stringify({ 
-          response: responseText,
-          source: 'gemini'
+          response: "I don't have information about this in my database. I've posted your question to **SyncSpot** where the community can help answer it.",
+          redirect: 'syncspot'
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      throw new Error('Invalid response from Gemini');
+      return new Response(JSON.stringify({ 
+        response: responseText,
+        source: 'mistral'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
 
-    } catch (geminiError) {
-      console.error('Gemini failed, trying Mistral as fallback:', geminiError);
+    } catch (mistralError) {
+      console.error('Mistral failed, trying Gemini as fallback:', mistralError);
       
-      // Fallback: Try Mistral if Gemini fails
-      if (mistralApiKey) {
+      // Fallback: Try Gemini if Mistral fails
+      if (geminiApiKey) {
         try {
-          const mistralResponse = await fetch(
-            'https://api.mistral.ai/v1/chat/completions',
+          const geminiSystemPrompt = `You are CampusBuddy. Answer college-related questions based on the database.
+
+RULES:
+1. ONLY answer college-related questions (academics, events, faculty, campus, facilities)
+2. If NOT college-related, say: "I can only help with college-related questions."
+3. Use **bold** for important info (double asterisks only)
+4. Keep answers concise (2-4 sentences)
+5. NEVER use single asterisks (*)
+6. If no answer found, respond: "SYNCSPOT_REDIRECT"
+
+Database:
+${fullContext || 'No data available.'}`;
+
+          const geminiResponse = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
             {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${mistralApiKey}`
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                model: 'mistral-large-latest',
-                messages: [
-                  { role: 'system', content: systemPrompt },
-                  { role: 'user', content: message }
-                ],
-                temperature: 0.7,
-                max_tokens: 500
+                contents: [{
+                  parts: [{
+                    text: `${geminiSystemPrompt}\n\nQuestion: ${message}`
+                  }]
+                }],
+                generationConfig: {
+                  temperature: 0.7,
+                  maxOutputTokens: 500,
+                }
               })
             }
           );
 
-          if (!mistralResponse.ok) {
-            throw new Error('Mistral API also failed');
+          if (!geminiResponse.ok) {
+            throw new Error('Gemini API also failed');
           }
 
-          const mistralData = await mistralResponse.json();
-          let responseText = mistralData.choices?.[0]?.message?.content || 'No response generated';
+          const geminiData = await geminiResponse.json();
+          let responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
           
-          // Remove single asterisks
           responseText = responseText.replace(/(?<!\*)\*(?!\*)/g, '');
 
-          const isCollegeRelated = !responseText.toLowerCase().includes("only help with college-related");
-          const hasNoAnswer = ['don\'t have', 'cannot find', 'syncspot'].some(phrase => 
-            responseText.toLowerCase().includes(phrase)
-          );
-
-          if (isCollegeRelated && hasNoAnswer) {
+          if (responseText.includes('SYNCSPOT_REDIRECT')) {
+            const authHeader = req.headers.get('authorization');
+            if (authHeader) {
+              try {
+                const token = authHeader.replace('Bearer ', '');
+                const supabaseClient = createClient(supabaseUrl, supabaseKey, {
+                  global: { headers: { Authorization: authHeader } }
+                });
+                
+                const { data: userData } = await supabaseClient.auth.getUser(token);
+                
+                if (userData?.user) {
+                  await supabaseClient
+                    .from('syncspot_questions')
+                    .insert({
+                      question: message,
+                      user_id: userData.user.id
+                    });
+                }
+              } catch (syncSpotError) {
+                console.error('Error posting to SyncSpot:', syncSpotError);
+              }
+            }
+            
             return new Response(JSON.stringify({ 
-              response: "I don't have information about this in my database. Let me redirect this question to **SyncSpot** where the community can help answer it.",
-              redirect: 'syncspot',
-              source: 'mistral'
+              response: "I don't have information about this in my database. I've posted your question to **SyncSpot** where the community can help answer it.",
+              redirect: 'syncspot'
             }), {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
@@ -238,18 +272,18 @@ ${fullContext || 'No college data available yet.'}`;
 
           return new Response(JSON.stringify({ 
             response: responseText,
-            source: 'mistral'
+            source: 'gemini'
           }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
 
-        } catch (mistralError) {
-          console.error('Both Gemini and Mistral failed:', mistralError);
+        } catch (geminiError) {
+          console.error('Both Mistral and Gemini failed:', geminiError);
           throw new Error('All AI services are currently unavailable');
         }
       }
 
-      throw geminiError;
+      throw mistralError;
     }
 
   } catch (error) {

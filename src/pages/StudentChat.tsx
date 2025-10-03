@@ -93,9 +93,9 @@ export default function StudentChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const generateBotResponse = async (userMessage: string): Promise<string | { redirectToSyncSpot: boolean; question: string }> => {
+  const generateBotResponse = async (userMessage: string): Promise<string | { redirectToSyncSpot: boolean }> => {
     try {
-      // Call the Gemini AI edge function
+      // Call the AI chat edge function (Mistral primary, Gemini fallback)
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { message: userMessage }
       });
@@ -106,10 +106,11 @@ export default function StudentChat() {
       }
 
       if (data?.response) {
+        // Check if this was redirected to SyncSpot
+        if (data?.redirect === 'syncspot') {
+          return { redirectToSyncSpot: true };
+        }
         return data.response;
-      } else if (data?.noAnswer) {
-        // If AI doesn't have an answer, redirect to SyncSpot
-        return { redirectToSyncSpot: true, question: userMessage };
       } else if (data?.error) {
         console.error('AI chat function error:', data.error);
         return "I'm sorry, I'm having trouble accessing my knowledge base right now. Please try again later or contact the college administration directly for assistance.";
@@ -138,27 +139,15 @@ export default function StudentChat() {
     setInputValue('');
     setIsTyping(true);
 
-    // Generate AI response with faculty data
+    // Generate AI response using Mistral (primary) with document data
     try {
       const botResponseResult = await generateBotResponse(text);
       
-      // Check if we need to redirect to SyncSpot
+      // Check if question was redirected to SyncSpot (backend already posted it)
       if (typeof botResponseResult === 'object' && botResponseResult.redirectToSyncSpot) {
-        // Create question in SyncSpot
-        const { error: syncSpotError } = await supabase
-          .from('syncspot_questions')
-          .insert([{
-            question: botResponseResult.question,
-            user_id: user.id
-          }]);
-
-        if (syncSpotError) {
-          console.error('Error creating SyncSpot question:', syncSpotError);
-        }
-
         const botResponse: Message = {
           id: (Date.now() + 1).toString(),
-          text: "I don't have information about this in my knowledge base. I've posted your question to SyncSpot where other students can help answer it! You can visit SyncSpot to see responses from the community.",
+          text: "I don't have information about this in my database. I've posted your question to **SyncSpot** where the community can help answer it!",
           isUser: false,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
@@ -169,8 +158,8 @@ export default function StudentChat() {
           
           // Show toast with link to SyncSpot
           toast({
-            title: "Question posted to SyncSpot!",
-            description: "Your question has been shared with the community for answers.",
+            title: "✅ Posted to SyncSpot!",
+            description: "Your question has been shared with the community.",
             action: (
               <Button 
                 variant="outline" 
@@ -183,7 +172,7 @@ export default function StudentChat() {
           });
         }, 1500);
       } else {
-        // Normal AI response
+        // Normal AI response from Mistral or Gemini
         const botResponse: Message = {
           id: (Date.now() + 1).toString(),
           text: botResponseResult as string,
