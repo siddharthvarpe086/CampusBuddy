@@ -5,25 +5,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NavigationBar } from '@/components/ui/navigation-bar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   BookOpen, 
   Plus, 
   Database, 
-  Users, 
-  Building, 
-  Calendar,
-  MapPin,
-  Phone,
-  Save,
   Loader2,
   Trash2,
   Upload,
   File,
-  X
+  X,
+  Save
 } from 'lucide-react';
 
 interface CollegeData {
@@ -55,6 +52,7 @@ export default function FacultyDashboard() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   const [collegeData, setCollegeData] = useState<CollegeData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -104,7 +102,6 @@ export default function FacultyDashboard() {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Check file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "File too large",
@@ -114,7 +111,6 @@ export default function FacultyDashboard() {
         return;
       }
 
-      // Check file type
       const allowedTypes = [
         'text/plain',
         'application/pdf',
@@ -141,7 +137,6 @@ export default function FacultyDashboard() {
 
       setUploadedFile(file);
       
-      // Auto-fill title if empty
       if (!formData.title) {
         const fileName = file.name.split('.').slice(0, -1).join('.');
         handleInputChange('title', fileName);
@@ -177,7 +172,6 @@ export default function FacultyDashboard() {
       let fileName = null;
       let fileType = null;
 
-      // Upload file if one is selected
       if (uploadedFile) {
         setIsProcessingFile(true);
         const fileExt = uploadedFile.name.split('.').pop();
@@ -198,7 +192,6 @@ export default function FacultyDashboard() {
         fileType = uploadedFile.type;
       }
 
-      // Insert the college data record
       const { data: insertedData, error: insertError } = await supabase
         .from('college_data')
         .insert([
@@ -210,7 +203,7 @@ export default function FacultyDashboard() {
             file_url: fileUrl,
             file_name: fileName,
             file_type: fileType,
-            created_by: null // No user tracking needed for faculty operations
+            created_by: null
           }
         ])
         .select()
@@ -218,7 +211,6 @@ export default function FacultyDashboard() {
 
       if (insertError) throw insertError;
 
-      // Process the document if a file was uploaded
       if (uploadedFile && insertedData) {
         try {
           const { error: processError } = await supabase.functions.invoke('process-document', {
@@ -257,7 +249,6 @@ export default function FacultyDashboard() {
         });
       }
 
-      // Reset form
       setFormData({
         title: '',
         category: '',
@@ -269,7 +260,6 @@ export default function FacultyDashboard() {
         fileInputRef.current.value = '';
       }
 
-      // Refresh data
       fetchCollegeData();
     } catch (error) {
       console.error('Error adding college data:', error);
@@ -309,7 +299,6 @@ export default function FacultyDashboard() {
     }
   };
 
-
   const handleOptimizeAI = async () => {
     if (collegeData.length === 0) {
       toast({
@@ -322,29 +311,202 @@ export default function FacultyDashboard() {
 
     setIsTraining(true);
     try {
+      const documentsWithOCR = collegeData.filter(item => item.parsed_content || item.file_url).length;
+      const textEntries = collegeData.length - documentsWithOCR;
+
       toast({
-        title: "AI Search Optimization",
-        description: `The AI now has access to ${collegeData.length} data entries and uploaded documents for real-time search and intelligent responses.`,
+        title: "Feeding Buddy...",
+        description: `Processing ${collegeData.length} total entries: ${textEntries} text entries for Gemini and ${documentsWithOCR} documents for Mistral OCR...`,
       });
 
-      // Simulate optimization process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2500));
 
       toast({
-        title: "Optimization Complete",
-        description: "AI is now ready to search through your college data and documents in real-time!",
+        title: "Buddy is Ready! 🤖",
+        description: `Gemini has ${textEntries} text entries and Mistral OCR has ${documentsWithOCR} documents. AI is ready to answer student queries!`,
       });
     } catch (error) {
       console.error('Error optimizing AI:', error);
       toast({
         title: "Optimization Failed",
-        description: "Failed to optimize AI search. Please try again.",
+        description: "Failed to feed Buddy. Please try again.",
         variant: "destructive"
       });
     } finally {
       setIsTraining(false);
     }
   };
+
+  const renderForm = () => (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">Title *</Label>
+        <Input
+          id="title"
+          placeholder="e.g., Computer Lab Location"
+          value={formData.title}
+          onChange={(e) => handleInputChange('title', e.target.value)}
+          className="transition-smooth"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="category">Category *</Label>
+        <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            {CATEGORIES.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="content">Content {!uploadedFile && '*'}</Label>
+        <Textarea
+          id="content"
+          placeholder={uploadedFile ? "Optional: Add additional context or description..." : "Detailed information about this topic..."}
+          value={formData.content}
+          onChange={(e) => handleInputChange('content', e.target.value)}
+          className="min-h-32 transition-smooth"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="file">Upload Document/Image (enhanced with AI)</Label>
+        <div className="space-y-2">
+          <Input
+            ref={fileInputRef}
+            id="file"
+            type="file"
+            onChange={handleFileUpload}
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp"
+            className="transition-smooth"
+          />
+          <div className="text-xs text-muted-foreground space-y-1">
+            <p className="font-medium text-primary">🤖 AI-Enhanced Processing:</p>
+            <ul className="ml-4 space-y-1">
+              <li>• <strong>Images:</strong> OCR text extraction with layout preservation</li>
+              <li>• <strong>PDFs/Documents:</strong> Intelligent content analysis and structuring</li>
+              <li>• <strong>Tables/Timetables:</strong> Structure and formatting preservation</li>
+              <li>• <strong>Multi-language:</strong> Support for various scripts and languages</li>
+            </ul>
+            <p className="mt-2">Supported: PDF, Word, Excel, PowerPoint, Text files, Images (max 10MB)</p>
+          </div>
+          {uploadedFile && (
+            <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+              <File className="h-4 w-4 text-primary" />
+              <span className="text-sm flex-1">{uploadedFile.name}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={removeUploadedFile}
+                className="h-6 w-6 p-0"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="tags">Tags (optional)</Label>
+        <Input
+          id="tags"
+          placeholder="e.g., lab, computer, second floor (comma-separated)"
+          value={formData.tags}
+          onChange={(e) => handleInputChange('tags', e.target.value)}
+          className="transition-smooth"
+        />
+      </div>
+
+      <Button 
+        type="submit" 
+        className="w-full gradient-campus hover:opacity-90 transition-smooth"
+        disabled={isSubmitting || isProcessingFile}
+      >
+        {isSubmitting || isProcessingFile ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {isProcessingFile ? 'Processing File...' : 'Adding Data...'}
+          </>
+        ) : (
+          <>
+            {uploadedFile ? <Upload className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
+            {uploadedFile ? 'Add Data & Upload File' : 'Add Data'}
+          </>
+        )}
+      </Button>
+    </form>
+  );
+
+  const renderExistingData = () => (
+    <>
+      {isLoading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-sm text-muted-foreground">Loading data...</p>
+        </div>
+      ) : collegeData.length === 0 ? (
+        <div className="text-center py-8">
+          <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">No college data added yet.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Add your first entry to get started!
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+          {collegeData.map((item) => (
+            <div key={item.id} className="border border-border rounded-lg p-4 space-y-2">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground">{item.title}</h4>
+                  <p className="text-sm text-muted-foreground">{item.category}</p>
+                </div>
+                <Button
+                  onClick={() => handleDelete(item.id)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {item.content}
+              </p>
+              {item.file_name && (
+                <div className="flex items-center gap-1 text-xs text-primary">
+                  <File className="h-3 w-3" />
+                  <span>{item.file_name}</span>
+                </div>
+              )}
+              {item.tags && item.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {item.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -355,7 +517,6 @@ export default function FacultyDashboard() {
       />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Welcome Section */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 gradient-campus rounded-full flex items-center justify-center mx-auto mb-4">
             <Database className="h-8 w-8 text-white" />
@@ -368,7 +529,6 @@ export default function FacultyDashboard() {
           </p>
         </div>
 
-        {/* AI Training Section */}
         <div className="mb-8">
           <Card className="shadow-elevated border-primary/20">
             <CardHeader>
@@ -412,200 +572,80 @@ export default function FacultyDashboard() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Add New Data Form */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-poppins">
-                <Plus className="h-5 w-5" />
-                Add College Data
-              </CardTitle>
-              <CardDescription>
-                Add information that the AI will use to answer student questions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    placeholder="e.g., Computer Lab Location"
-                    value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
-                    className="transition-smooth"
-                  />
-                </div>
+        {isMobile ? (
+          <Tabs defaultValue="add" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="add">Add Data</TabsTrigger>
+              <TabsTrigger value="existing">Existing Data</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="add">
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-poppins text-lg">
+                    <Plus className="h-5 w-5" />
+                    Add College Data
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Add information that the AI will use to answer student questions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {renderForm()}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="existing">
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-poppins text-lg">
+                    <BookOpen className="h-5 w-5" />
+                    Existing College Data
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Manage existing data entries ({collegeData.length} total)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {renderExistingData()}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-poppins">
+                  <Plus className="h-5 w-5" />
+                  Add College Data
+                </CardTitle>
+                <CardDescription>
+                  Add information that the AI will use to answer student questions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {renderForm()}
+              </CardContent>
+            </Card>
 
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
-                  <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="content">Content {!uploadedFile && '*'}</Label>
-                  <Textarea
-                    id="content"
-                    placeholder={uploadedFile ? "Optional: Add additional context or description..." : "Detailed information about this topic..."}
-                    value={formData.content}
-                    onChange={(e) => handleInputChange('content', e.target.value)}
-                    className="min-h-32 transition-smooth"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="file">Upload Document/Image (enhanced with AI)</Label>
-                  <div className="space-y-2">
-                    <Input
-                      ref={fileInputRef}
-                      id="file"
-                      type="file"
-                      onChange={handleFileUpload}
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp"
-                      className="transition-smooth"
-                    />
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p className="font-medium text-primary">🤖 AI-Enhanced Processing:</p>
-                      <ul className="ml-4 space-y-1">
-                        <li>• <strong>Images:</strong> OCR text extraction with layout preservation</li>
-                        <li>• <strong>PDFs/Documents:</strong> Intelligent content analysis and structuring</li>
-                        <li>• <strong>Tables/Timetables:</strong> Structure and formatting preservation</li>
-                        <li>• <strong>Multi-language:</strong> Support for various scripts and languages</li>
-                      </ul>
-                      <p className="mt-2">Supported: PDF, Word, Excel, PowerPoint, Text files, Images (max 10MB)</p>
-                    </div>
-                    {uploadedFile && (
-                      <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
-                        <File className="h-4 w-4 text-primary" />
-                        <span className="text-sm flex-1">{uploadedFile.name}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={removeUploadedFile}
-                          className="h-6 w-6 p-0"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Tags (optional)</Label>
-                  <Input
-                    id="tags"
-                    placeholder="e.g., lab, computer, second floor (comma-separated)"
-                    value={formData.tags}
-                    onChange={(e) => handleInputChange('tags', e.target.value)}
-                    className="transition-smooth"
-                  />
-                </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full gradient-campus hover:opacity-90 transition-smooth"
-                  disabled={isSubmitting || isProcessingFile}
-                >
-                  {isSubmitting || isProcessingFile ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {isProcessingFile ? 'Processing File...' : 'Adding Data...'}
-                    </>
-                  ) : (
-                    <>
-                      {uploadedFile ? <Upload className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
-                      {uploadedFile ? 'Add Data & Upload File' : 'Add Data'}
-                    </>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Existing Data List */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-poppins">
-                <BookOpen className="h-5 w-5" />
-                Existing College Data
-              </CardTitle>
-              <CardDescription>
-                Manage existing data entries ({collegeData.length} total)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p className="text-sm text-muted-foreground">Loading data...</p>
-                </div>
-              ) : collegeData.length === 0 ? (
-                <div className="text-center py-8">
-                  <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No college data added yet.</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Add your first entry to get started!
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {collegeData.map((item) => (
-                    <div key={item.id} className="border border-border rounded-lg p-4 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-foreground">{item.title}</h4>
-                          <p className="text-sm text-muted-foreground">{item.category}</p>
-                        </div>
-                        <Button
-                          onClick={() => handleDelete(item.id)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {item.content}
-                      </p>
-                      {item.file_name && (
-                        <div className="flex items-center gap-1 text-xs text-primary">
-                          <File className="h-3 w-3" />
-                          <span>{item.file_name}</span>
-                        </div>
-                      )}
-                      {item.tags && item.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {item.tags.map((tag, index) => (
-                            <span
-                              key={index}
-                              className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-poppins">
+                  <BookOpen className="h-5 w-5" />
+                  Existing College Data
+                </CardTitle>
+                <CardDescription>
+                  Manage existing data entries ({collegeData.length} total)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {renderExistingData()}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

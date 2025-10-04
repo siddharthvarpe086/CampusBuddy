@@ -98,7 +98,7 @@ serve(async (req) => {
                 content: [
                   {
                     type: 'text',
-                    text: 'Extract and organize all text from this document. Preserve the structure including tables, lists, headings, and important formatting. If this is a timetable, event schedule, or structured document, maintain the layout clearly. Provide the extracted text in a well-organized format.'
+                    text: 'You are an expert OCR system. Extract ALL text, data, and information from this document with maximum accuracy. Requirements:\n\n1. Extract EVERY word, number, and detail visible\n2. Preserve exact structure: tables, lists, headings, sections\n3. For timetables/schedules: maintain exact time slots, subjects, rooms, faculty names\n4. For forms/documents: extract all fields, labels, and values\n5. For images with text: perform OCR on all visible text\n6. Organize the output in a clear, structured format\n7. Use markdown formatting for better readability (headings with #, tables with |, lists with -)\n\nBe thorough and precise - extract everything you can see.'
                   },
                   {
                     type: 'image_url',
