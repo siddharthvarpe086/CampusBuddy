@@ -226,23 +226,12 @@ export default function StudentChat() {
   return (
     <div className="min-h-screen bg-background flex flex-col page-enter">
       <NavigationBar 
-        title={
-          <div className="flex items-center gap-3">
-            <span>Campus Buddy</span>
-            <button
-              onClick={() => navigate('/syncspot')}
-              className="w-8 h-8 bg-sky-400 hover:bg-sky-500 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-lg"
-              title="Visit SyncSpot Community"
-            >
-              <MessageCircle className="h-4 w-4 text-white" />
-            </button>
-          </div>
-        }
+        title="Campus Buddy"
         showBack 
         onBack={() => navigate('/')}
       />
       
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full pb-20">
         {/* Chat Header */}
         <div className="p-6 text-center bg-gradient-subtle">
           <h1 className="text-2xl font-bold text-foreground font-poppins">
@@ -295,37 +284,35 @@ export default function StudentChat() {
 
           <div ref={messagesEndRef} />
         </div>
+      </div>
 
-        {/* Chat Input */}
-        <div className="p-6 border-t border-border">
-          <div className="max-w-4xl mx-auto">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 rounded-2xl blur-xl"></div>
-              <div className="relative bg-transparent border-2 border-gradient rounded-2xl p-1">
-                <div className="flex gap-3 items-center p-2">
-                  <div className="flex-1 relative">
-                    <Input
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="✨ Ask me anything about the college..."
-                      className="border-0 bg-transparent text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 font-medium h-10"
-                      disabled={isTyping}
-                    />
-                  </div>
-                  <Button
-                    onClick={() => handleSendMessage()}
-                    disabled={!inputValue.trim() || isTyping}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-4 py-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground/70 mt-3 text-center font-medium">
-              💬 I can provide details about departments, events, facilities, faculty, and contact information
-            </p>
+      {/* Fixed Bottom Input - WhatsApp Style */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
+        <div className="max-w-4xl mx-auto p-3">
+          <div className="flex gap-2 items-center">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Message Campus Buddy..."
+              className="flex-1 rounded-full bg-card border-border text-base px-4 h-11"
+              disabled={isTyping}
+            />
+            <button
+              onClick={() => navigate('/syncspot')}
+              className="w-11 h-11 bg-sky-400 hover:bg-sky-500 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-md flex-shrink-0"
+              title="Visit SyncSpot Community"
+            >
+              <MessageCircle className="h-5 w-5 text-white" />
+            </button>
+            <Button
+              onClick={() => handleSendMessage()}
+              disabled={!inputValue.trim() || isTyping}
+              size="icon"
+              className="rounded-full w-11 h-11 bg-primary hover:bg-primary/90 flex-shrink-0"
+            >
+              <Send className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>
