@@ -378,7 +378,7 @@ export default function FacultyDashboard() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="file">Upload Document/Image (enhanced with AI)</Label>
+        <Label htmlFor="file">{isMobile ? "Upload File" : "Upload Document/Image (enhanced with AI)"}</Label>
         <div className="space-y-2">
           <Input
             ref={fileInputRef}
@@ -388,16 +388,11 @@ export default function FacultyDashboard() {
             accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp"
             className="transition-smooth"
           />
-          <div className="text-xs text-muted-foreground space-y-1">
-            <p className="font-medium text-primary">🤖 AI-Enhanced Processing:</p>
-            <ul className="ml-4 space-y-1">
-              <li>• <strong>Images:</strong> OCR text extraction with layout preservation</li>
-              <li>• <strong>PDFs/Documents:</strong> Intelligent content analysis and structuring</li>
-              <li>• <strong>Tables/Timetables:</strong> Structure and formatting preservation</li>
-              <li>• <strong>Multi-language:</strong> Support for various scripts and languages</li>
-            </ul>
-            <p className="mt-2">Supported: PDF, Word, Excel, PowerPoint, Text files, Images (max 10MB)</p>
-          </div>
+          {!isMobile && (
+            <p className="text-xs text-muted-foreground">
+              Supported: PDF, Word, Excel, PowerPoint, Text, Images (max 10MB)
+            </p>
+          )}
           {uploadedFile && (
             <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
               <File className="h-4 w-4 text-primary" />
@@ -457,10 +452,7 @@ export default function FacultyDashboard() {
       ) : collegeData.length === 0 ? (
         <div className="text-center py-8">
           <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">No college data added yet.</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Add your first entry to get started!
-          </p>
+          <p className="text-muted-foreground">No data added yet.</p>
         </div>
       ) : (
         <div className="space-y-4 max-h-[60vh] overflow-y-auto">
@@ -524,9 +516,11 @@ export default function FacultyDashboard() {
           <h1 className="text-3xl font-bold text-foreground font-poppins mb-2">
             Faculty Dashboard
           </h1>
-          <p className="text-muted-foreground">
-            Manage college data and train the AI model for Campus Buddy.
-          </p>
+          {!isMobile && (
+            <p className="text-muted-foreground">
+              Manage college data and train the AI model for Campus Buddy.
+            </p>
+          )}
         </div>
 
         <div className="mb-8">
@@ -534,20 +528,19 @@ export default function FacultyDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-poppins text-primary">
                 <Database className="h-5 w-5" />
-                AI Search System with Mistral OCR
+                {isMobile ? "AI System" : "AI Search System with Mistral OCR"}
               </CardTitle>
-              <CardDescription>
-                Enhanced with Mistral AI for OCR processing, layout preservation, and multi-language support. The AI searches through your documents and extracts structured content in real-time.
-              </CardDescription>
+              {!isMobile && (
+                <CardDescription>
+                  Enhanced with Mistral AI for OCR processing and intelligent document analysis.
+                </CardDescription>
+              )}
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Current Data: <strong>{collegeData.length} entries</strong>
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    The AI searches through this data and documents in real-time for intelligent responses
+                  <p className="text-sm text-muted-foreground">
+                    <strong>{collegeData.length}</strong> {isMobile ? "entries" : "entries total"}
                   </p>
                 </div>
                 <Button 
@@ -558,7 +551,7 @@ export default function FacultyDashboard() {
                   {isTraining ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Feeding...
+                      {isMobile ? "..." : "Feeding..."}
                     </>
                   ) : (
                     <>
@@ -584,11 +577,8 @@ export default function FacultyDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 font-poppins text-lg">
                     <Plus className="h-5 w-5" />
-                    Add College Data
+                    Add Data
                   </CardTitle>
-                  <CardDescription className="text-sm">
-                    Add information that the AI will use to answer student questions
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {renderForm()}
@@ -601,11 +591,8 @@ export default function FacultyDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 font-poppins text-lg">
                     <BookOpen className="h-5 w-5" />
-                    Existing College Data
+                    Existing Data ({collegeData.length})
                   </CardTitle>
-                  <CardDescription className="text-sm">
-                    Manage existing data entries ({collegeData.length} total)
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {renderExistingData()}
