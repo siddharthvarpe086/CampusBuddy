@@ -40,8 +40,17 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Only process image and PDF files
-    const processableTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
+    // Process image, PDF, and document files
+    const processableTypes = [
+      'image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif',
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/msword', // .doc
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/vnd.ms-excel', // .xls
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+      'application/vnd.ms-powerpoint' // .ppt
+    ];
     
     if (!processableTypes.includes(fileType)) {
       console.log('File type not processable for OCR:', fileType);
@@ -98,7 +107,7 @@ serve(async (req) => {
                 content: [
                   {
                     type: 'text',
-                    text: 'You are an expert OCR system. Extract ALL text, data, and information from this document with maximum accuracy. Requirements:\n\n1. Extract EVERY word, number, and detail visible\n2. Preserve exact structure: tables, lists, headings, sections\n3. For timetables/schedules: maintain exact time slots, subjects, rooms, faculty names\n4. For forms/documents: extract all fields, labels, and values\n5. For images with text: perform OCR on all visible text\n6. Organize the output in a clear, structured format\n7. Use markdown formatting for better readability (headings with #, tables with |, lists with -)\n\nBe thorough and precise - extract everything you can see.'
+                    text: 'You are an expert document analysis system. Extract ALL text, data, and information from this document with MAXIMUM accuracy and completeness.\n\nCRITICAL REQUIREMENTS:\n1. Extract EVERY single word, number, name, date, time, and detail visible\n2. Preserve EXACT structure: tables, lists, headings, sections, formatting\n3. For timetables/schedules: capture ALL time slots, subjects, rooms, faculty names, days\n4. For forms/documents: extract ALL fields, labels, values, checkboxes, notes\n5. For images with text: perform deep OCR on ALL visible text including small print\n6. For faculty/staff lists: extract ALL names, designations, departments, contact info\n7. For academic data: capture ALL course details, codes, credits, prerequisites\n8. Organize output in clear, structured markdown format:\n   - Use # for main headings\n   - Use ## for subheadings\n   - Use | for tables with proper alignment\n   - Use - for lists\n   - Use **bold** for important terms\n\nBe EXHAUSTIVE and PRECISE - extract EVERYTHING visible, no matter how small. Leave nothing out.'
                   },
                   {
                     type: 'image_url',
@@ -109,7 +118,7 @@ serve(async (req) => {
                 ]
               }
             ],
-            max_tokens: 2000
+            max_tokens: 4000
           })
         }
       );
