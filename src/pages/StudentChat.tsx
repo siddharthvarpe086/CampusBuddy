@@ -19,16 +19,10 @@ interface Message {
 }
 
 export default function StudentChat() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: "👋 Hi there! I'm your Campus Buddy. How can I help you today?",
-      isUser: false,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -94,6 +88,11 @@ export default function StudentChat() {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsTyping(true);
+    
+    // Hide greeting after first message
+    if (showGreeting) {
+      setTimeout(() => setShowGreeting(false), 300);
+    }
 
     // Generate AI response using Mistral (primary) with document data
     try {
@@ -182,6 +181,15 @@ export default function StudentChat() {
       />
       
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full pb-20">
+        {/* Fixed Greeting Message */}
+        {showGreeting && (
+          <div className={`mx-4 mt-4 mb-2 p-4 bg-accent/30 rounded-2xl border border-accent/20 transition-all duration-500 ${!showGreeting ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+            <p className="text-sm text-foreground font-medium text-center">
+              👋 Hey there! I'm your Campus Buddy. How can I help you today?
+            </p>
+          </div>
+        )}
+        
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message) => (
@@ -211,29 +219,29 @@ export default function StudentChat() {
       </div>
 
       {/* Fixed Bottom Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
-        <div className="max-w-4xl mx-auto p-3">
-          <div className="flex gap-2 items-center">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg z-50">
+        <div className="max-w-4xl mx-auto p-4">
+          <div className="flex items-center justify-center gap-3">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your question…"
-              className="flex-1 rounded-full bg-card border-border text-base px-4 h-11"
+              placeholder="Type your question..."
+              className="flex-1 rounded-full bg-card border-border shadow-sm text-base px-5 py-3 h-12 focus:ring-2 focus:ring-primary/20 transition-all"
               disabled={isTyping}
             />
             <button
               onClick={() => navigate('/syncspot')}
-              className="w-11 h-11 bg-gradient-to-br from-sky-400 to-blue-500 hover:opacity-90 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-md flex-shrink-0"
+              className="w-12 h-12 bg-gradient-to-br from-[#3ABAFD] to-[#007BFF] hover:opacity-90 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-md flex-shrink-0 p-2.5"
               title="Visit SyncSpot Community"
             >
-              <img src={syncspotLogo} alt="SyncSpot" className="h-6 w-6" />
+              <img src={syncspotLogo} alt="SyncSpot" className="w-full h-full object-contain" />
             </button>
             <Button
               onClick={() => handleSendMessage()}
               disabled={!inputValue.trim() || isTyping}
               size="icon"
-              className="rounded-full w-11 h-11 bg-primary hover:bg-primary/90 flex-shrink-0"
+              className="rounded-full w-12 h-12 bg-primary hover:bg-primary/90 shadow-md flex-shrink-0 transition-all duration-200 hover:scale-105"
             >
               <Send className="h-5 w-5" />
             </Button>
