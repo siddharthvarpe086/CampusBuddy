@@ -3,25 +3,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NavigationBar } from '@/components/ui/navigation-bar';
-import { SuggestionCard } from '@/components/chat/SuggestionCard';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Send, 
-  MapPin, 
-  Users, 
-  Calendar, 
-  Phone, 
-  BookOpen,
-  Building,
-  Clock,
-  Mail,
-  MessageCircle,
-  Sparkles
-} from 'lucide-react';
+import { Send, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import syncspotLogo from '@/assets/syncspot-logo.png';
 
 interface Message {
   id: string;
@@ -30,47 +18,15 @@ interface Message {
   timestamp: string;
 }
 
-const SUGGESTION_CARDS = [
-  {
-    id: 'location',
-    title: 'Where is the computer lab?',
-    icon: MapPin,
-    query: 'Where is the computer lab located?'
-  },
-  {
-    id: 'hod',
-    title: 'Who is the HOD of EnTC Department?',
-    icon: Users,
-    query: 'Who is the Head of Department for Electronics and Telecommunication?'
-  },
-  {
-    id: 'events',
-    title: 'What are today\'s events?',
-    icon: Calendar,
-    query: 'What events are happening today on campus?'
-  },
-  {
-    id: 'library',
-    title: 'How can I contact the library?',
-    icon: Phone,
-    query: 'What are the library contact details and timings?'
-  },
-  {
-    id: 'departments',
-    title: 'List all departments',
-    icon: Building,
-    query: 'What departments are available in the college?'
-  },
-  {
-    id: 'timings',
-    title: 'College timings',
-    icon: Clock,
-    query: 'What are the college working hours and timings?'
-  }
-];
-
 export default function StudentChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      text: "👋 Hi there! I'm your Campus Buddy. How can I help you today?",
+      isUser: false,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+  ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -201,10 +157,6 @@ export default function StudentChat() {
     }
   };
 
-  const handleSuggestionClick = (suggestion: typeof SUGGESTION_CARDS[0]) => {
-    handleSendMessage(suggestion.query);
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -221,8 +173,6 @@ export default function StudentChat() {
     </div>;
   }
 
-  const firstName = profile.full_name.split(' ')[0];
-
   return (
     <div className="min-h-screen bg-background flex flex-col page-enter">
       <NavigationBar 
@@ -232,34 +182,8 @@ export default function StudentChat() {
       />
       
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full pb-20">
-        {/* Chat Header */}
-        <div className="p-6 text-center bg-gradient-subtle">
-          <h1 className="text-2xl font-bold text-foreground font-poppins">
-            Hi there, <span className="text-primary">{firstName}</span>.
-          </h1>
-          <p className="text-lg text-muted-foreground mt-1 font-poppins">
-            What would you like to know?
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Use one of the most common prompts below or ask your own to begin.
-          </p>
-        </div>
-
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
-              {SUGGESTION_CARDS.map((suggestion) => (
-                <SuggestionCard
-                  key={suggestion.id}
-                  title={suggestion.title}
-                  icon={suggestion.icon}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                />
-              ))}
-            </div>
-          )}
-
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
@@ -286,7 +210,7 @@ export default function StudentChat() {
         </div>
       </div>
 
-      {/* Fixed Bottom Input - WhatsApp Style */}
+      {/* Fixed Bottom Input */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
         <div className="max-w-4xl mx-auto p-3">
           <div className="flex gap-2 items-center">
@@ -294,16 +218,16 @@ export default function StudentChat() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Message Campus Buddy..."
+              placeholder="Type your question…"
               className="flex-1 rounded-full bg-card border-border text-base px-4 h-11"
               disabled={isTyping}
             />
             <button
               onClick={() => navigate('/syncspot')}
-              className="w-11 h-11 bg-sky-400 hover:bg-sky-500 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-md flex-shrink-0"
+              className="w-11 h-11 bg-gradient-to-br from-sky-400 to-blue-500 hover:opacity-90 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-md flex-shrink-0"
               title="Visit SyncSpot Community"
             >
-              <MessageCircle className="h-5 w-5 text-white" />
+              <img src={syncspotLogo} alt="SyncSpot" className="h-6 w-6" />
             </button>
             <Button
               onClick={() => handleSendMessage()}

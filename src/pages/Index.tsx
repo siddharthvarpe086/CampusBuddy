@@ -56,84 +56,26 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
-        <div className="text-center max-w-4xl mx-auto mb-16">
-          <div className="w-20 h-20 gradient-campus rounded-full flex items-center justify-center mx-auto mb-6">
-            <GraduationCap className="h-10 w-10 text-white" />
+        <div className="text-center max-w-3xl mx-auto mb-20 mt-16">
+          <div className="w-24 h-24 gradient-campus rounded-full flex items-center justify-center mx-auto mb-8 shadow-glow">
+            <GraduationCap className="h-12 w-12 text-white" />
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground font-poppins mb-6">
-            AI-Powered Campus Buddy
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground font-poppins mb-6 leading-tight">
+            Your Smart Campus Assistant.
           </h1>
           
-          <p className="text-xl text-muted-foreground font-poppins mb-4">
-            Student Helpdesk Chat Bot
-          </p>
-          
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Get instant answers to all your college-related questions. From department locations 
-            to faculty contacts, our AI-powered chat bot has all the campus information you need.
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            Get instant answers, faculty details, and all your college info — powered by AI.
           </p>
 
           <Button
             onClick={handleGetStarted}
             size="lg"
-            className="gradient-campus hover:opacity-90 transition-smooth text-lg px-8 py-6"
+            className="gradient-campus hover:opacity-90 transition-smooth text-lg px-10 py-7 rounded-full shadow-elegant"
           >
-            <MessageSquare className="mr-2 h-5 w-5" />
-            {user ? 'Open Chat Bot' : 'Get Started'}
-            <ArrowRight className="ml-2 h-5 w-5" />
+            {user ? 'Open Chat' : 'Get Started'}
           </Button>
-        </div>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
-                <Bot className="h-6 w-6 text-white" />
-              </div>
-              <CardTitle className="font-poppins">AI-Powered Responses</CardTitle>
-              <CardDescription>
-                Get instant, accurate answers powered by advanced AI technology trained on your campus data.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
-                <BookOpen className="h-6 w-6 text-white" />
-              </div>
-              <CardTitle className="font-poppins">Comprehensive Database</CardTitle>
-              <CardDescription>
-                Access information about departments, faculty, labs, events, and all campus facilities in one place.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
-                <Globe className="h-6 w-6 text-white" />
-              </div>
-              <CardTitle className="font-poppins">Community Q&A</CardTitle>
-              <CardDescription>
-                SyncSpot - Where students collaborate to answer questions that stump the AI.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="shadow-card hover:shadow-elevated transition-all duration-200 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 gradient-campus rounded-lg flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <CardTitle className="font-poppins">Faculty Management</CardTitle>
-              <CardDescription>
-                Faculty can easily update campus information to keep the knowledge base current and accurate.
-              </CardDescription>
-            </CardHeader>
-          </Card>
         </div>
 
         {/* Current User Info */}
